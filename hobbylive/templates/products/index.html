@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Главная
+{% endblock %}
+{% block content %}
+  <div class="top-foto">
+    <img class="adaptive_image" src="{% static "img/index_logo.jpg" %}" style="filter: brightness(30%); height: 800px; width: 2000px;"  alt="logo">
+  </div>
+  <div class="box">
+{#      <div class="centered">#}
+{#      </div>#}
+  <div class="section-title-1 mb-70 text-center centered">
+      <a class="font" style="color: #FFFFF0; font-size: 60px; line-height: 60px; letter-spacing: 0.04em;">Товары для творческих<br>и изобретательных</a>
+                </div>
+  </div>
+{% endblock %}

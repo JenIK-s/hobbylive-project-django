@@ -1,0 +1,191 @@
+{% load static %}
+<header class="header-area  section-padding-1">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-xl-2 col-lg-2">
+                <div class="logo logo-width">
+                    <a href={% url "products:index" %}>
+                        <img src="{% static "img/logo.png" %}" style="width: 60px; height: 60px;" alt="logo">
+                    </a>
+                </div>
+            </div>
+            <div class="col-xl-8 col-lg-8 d-flex justify-content-center position-static">
+                <div class="main-menu menu-lh-1 main-menu-padding-1">
+                    <nav>
+                        <ul>
+                            <li><a href="#">Каталог</a></li>
+                            <li><a href="shop-fullwide.html">Контакты </a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            <div class="col-xl-2 col-lg-2">
+                <div class="header-right-wrap header-right-flex">
+                    <div class="same-style header-wishlist">
+                        <a href="wishlist.html"><i class="fa fa-heart-o"></i></a>
+                    </div>
+                    <div class="same-style cart-wrap">
+                        <a href="#" class="cart-active">
+                            <i class="dlicon shopping_bag-20"></i>
+                            {% if count > 0 %}
+                                <span class="count-style">{{ count }}</span>
+                            {% endif %}
+                        </a>
+                    </div>
+                    <div class="same-style header-search">
+                        <a class="search-active" href="#">
+                            <i class="dlicon ui-1_zoom"></i>
+                        </a>
+                    </div>
+                    <div class="same-style header-off-canvas">
+                        <a class="header-aside-button" href="#">
+                            <i class="dlicon ui-3_menu-left"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<div class="header-small-mobile section-padding-1">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-6">
+                <div class="mobile-logo logo-width">
+                    <a href="index.html">
+                        <img alt="" style="width: 60px; height: 60px;" src="{% static "img/logo.png" %}">
+                    </a>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="mobile-header-right-wrap">
+                    <div class="header-right-wrap header-right-flex">
+                        <div class="same-style cart-wrap">
+                            <a href="#" class="cart-active">
+                                <i class="dlicon shopping_bag-20"></i>
+                                {% if count > 0 %}
+                                    <span class="count-style">{{ count }}</span>
+                                {% endif %}
+                            </a>
+                        </div>
+                        <div class="same-style header-off-canvas">
+                            <a class="header-aside-button" href="#">
+                                <i class="dlicon ui-3_menu-left"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- search start -->
+<div class="search-content-wrap main-search-active">
+    <a class="search-close"><i class="dlicon ui-1_simple-remove"></i></a>
+    <div class="search-content">
+        <p>Поиск</p>
+        <form class="search-form" action="#">
+            <input type="text" placeholder="Поиск в каталоге...">
+            <button class="button-search"><i class="dlicon ui-1_zoom"></i></button>
+        </form>
+    </div>
+</div>
+<!-- mini cart start -->
+<div class="sidebar-cart-active">
+    <div class="sidebar-cart-all">
+        <a class="cart-close" href="#"><i class="dlicon ui-1_simple-remove"></i></a>
+        <div class="cart-content">
+            <h3>Корзина</h3>
+            <ul>
+                <li class="single-product-cart">
+                    <div class="cart-img">
+                        <a href="#"><img src="assets/images/cart/cart-1.jpg" alt=""></a>
+                    </div>
+                    <div class="cart-title">
+                        <h4><a href="#">Bejewelled velvet sandals</a></h4>
+                        <span> 1 × $49.00	</span>
+                    </div>
+                    <div class="cart-delete">
+                        <a href="#">×</a>
+                    </div>
+                </li>
+                <li class="single-product-cart">
+                    <div class="cart-img">
+                        <a href="#"><img src="assets/images/cart/cart-2.jpg" alt=""></a>
+                    </div>
+                    <div class="cart-title">
+                        <h4><a href="#">Contrast faux fur jacket</a></h4>
+                        <span> 1 × $49.00	</span>
+                    </div>
+                    <div class="cart-delete">
+                        <a href="#">×</a>
+                    </div>
+                </li>
+            </ul>
+            <div class="cart-total">
+                <h4>Subtotal: <span>$170.00</span></h4>
+            </div>
+            <div class="cart-checkout-btn">
+                <a class="btn-hover cart-btn-style" href="cart.html">view cart</a>
+                <a class="no-mrg btn-hover cart-btn-style" href="checkout.html">checkout</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- aside start -->
+<div class="header-aside-active">
+    <div class="header-aside-wrap">
+        <a class="aside-close"><i class="dlicon ui-1_simple-remove"></i></a>
+        <div class="header-aside-content">
+            <div class="mobile-menu-area">
+                <div class="mobile-search">
+                    <form class="search-form" action="#">
+                        <input type="text" placeholder="Поиск в каталоге…">
+                        <button class="button-search"><i class="dlicon ui-1_zoom"></i></button>
+                    </form>
+                </div>
+                <div class="mobile-menu-wrap">
+                    <!-- mobile menu start -->
+                    <div class="mobile-navigation">
+                        <!-- mobile menu navigation start -->
+                        <nav>
+                            <ul class="mobile-menu">
+                                <li><a href="#">Каталог</a></li>
+                                <li><a href="shop-fullwide.html">Контакты </a></li>
+                            </ul>
+                        </nav>
+                        <!-- mobile menu navigation end -->
+                    </div>
+                    <!-- mobile menu end -->
+                </div>
+
+            </div>
+            <div class="header-aside-menu">
+                <nav>
+                    <ul>
+                        <li><a href="#">About Toro</a></li>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Collection</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">New Look</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="aside-contact-info">
+                <ul>
+                    <li><i class="dlicon ui-2_time-clock"></i>Понедельник - Воскресенье: 10:00 - 17:00</li>
+                    <li><i class="dlicon ui-1_home-minimal"></i>г. Москва, ул. Артюхиной д. 4</li>
+                </ul>
+            </div>
+            <div class="social-icon-style mb-25">
+                <a class="facebook" href="#"><i class="fa fa-facebook"></i></a>
+                <a class="twitter" href="#"><i class="fa fa-twitter"></i></a>
+                <a class="google-plus" href="#"><i class="fa fa-google-plus"></i></a>
+                <a class="behance" href="#"><i class="fa fa-behance"></i></a>
+            </div>
+            <div class="copyright">
+                <p>© 2024 Hobby Live</p>
+            </div>
+        </div>
+    </div>
+</div>
