@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Товар
+{% endblock %}
+{#{% block content %}#}
+{#    <a>Name: {{ product.name }}</a>#}
+{#    <form method="POST">#}
+{#        {% csrf_token %}#}
+{#        <button type="submit">Add to cart</button>#}
+{#    </form>#}
+{#{% endblock %}#}
+
+{% block content %}
+{#    <div class="main-wrapper">#}
+{#        <div class="product-details-area section-padding-1 pb-90">#}
+{#            <div class="container-fluid">#}
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="product-details-tab">
+                            <div class="product-dec-right pro-dec-big-img-slider">
+                                <div class="easyzoom-style">
+                                    <div class="easyzoom easyzoom--overlay">
+                                        <a href={{ image_large }}>
+                                            <img style="border-radius: 3px" src="{{ image_large }}"
+                                                 width="520" height="572" alt="">
+                                        </a>
+                                    </div>
+                                    <a class="easyzoom-pop-up img-popup" href={{ image_large }}><i
+                                            class="dlicon ui-1_zoom-in "></i></a>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                    <div class="col-lg-6">
+                        <div class="row">
+                            <div class="product-details-col-72">
+                                <div class="product-details-content p-dec-content-edit">
+
+                                    <h2 class="uppercase">{{ product.name }}</h2>
+                                    <h3>₽{{ product.price }}</h3>
+
+                                    <div class="product-details-peragraph">
+                                        <section class="section-products">
+                                            <div class="container">
+                                                <div class="row">
+                                                    <form class="row" method="POST">
+                                                        {% csrf_token %}
+                                                        {% for images in product.images.all %}
+                                                            <div class="col-md-2 col-lg-2 col-xl-2">
+                                                                <div class="card">
+                                                                    <button style="width:50px; height:50px; background-color: rgba(255, 255, 255, 0); border: none;"
+                                                                            type="submit" name="image"
+                                                                            value="{{ images.pk }}"><img
+                                                                            class="choice" src="{{ images.image.url }}"
+                                                                            width="50" height="50" alt="logo"></button>
+                                                                </div>
+                                                                <h4></h4>
+                                                            </div>
+                                                        {% endfor %}
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </section>
+                                    </div>
+
+                                    <form class="product-details-action-wrap" method="POST">
+                                        {% csrf_token %}
+                                        <button type="button" id="decrement" style="width: 30px; height: 30px; background-color: rgba(255, 255, 255, 0); border: none;">-
+                                        </button>
+                                        {{ form.qtybutton }}
+                                        <button type="button" id="increment" style="width: 30px; height: 30px; background-color: rgba(255, 255, 255, 0); border: none;">+
+                                        </button>
+                                                <button class="in_order_list" type="submit" name="action" value="ok">В корзину</button>
+                                        <div class="product-details-wishlist">
+                                            <a title="Add to wishlist" href="#"><i class="fa fa-heart"></i></a>
+                                        </div>
+
+
+                                    </form>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    const qtyInput = document.getElementById('qtybutton');
+                    const decrementButton = document.getElementById('decrement');
+                    const incrementButton = document.getElementById('increment');
+
+                    decrementButton.addEventListener('click', () => {
+                        let currentValue = parseInt(qtyInput.value);
+                        if (currentValue > 1) {
+                            qtyInput.value = currentValue - 1;
+                        }
+                    });
+
+                    incrementButton.addEventListener('click', () => {
+                        let currentValue = parseInt(qtyInput.value);
+                        qtyInput.value = currentValue + 1;
+                    });
+                </script>
+{% endblock %}

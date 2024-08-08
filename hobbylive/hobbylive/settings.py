@@ -3,7 +3,6 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 SECRET_KEY = 'django-insecure-ircj=bj*ckyh6kurkkiujk3vdockn7=@n9a$osug+@9!=c1&r^'
 
 DEBUG = True
@@ -45,6 +44,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'products.context_processors.cart.cart_handler',
             ],
         },
     },
@@ -58,7 +58,6 @@ DATA_BASE = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 DATABASES = {
     'default': DATA_BASE.get('SQLite3')
@@ -79,7 +78,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'UTC'
 

@@ -1,5 +1,6 @@
 {% load static %}
-<header class="header-area  section-padding-1">
+
+<header class="header-area  section-padding-1 header_fixed">
     <div class="container-fluid">
         <div class="row align-items-center">
             <div class="col-xl-2 col-lg-2">
@@ -13,8 +14,9 @@
                 <div class="main-menu menu-lh-1 main-menu-padding-1">
                     <nav>
                         <ul>
-                            <li><a href="#">Каталог</a></li>
-                            <li><a href="shop-fullwide.html">Контакты </a></li>
+                            <li><a style="font-family: TildaSansBold"
+                                   href="{% url "products:products_list" %}">Каталог</a></li>
+                            <li><a style="font-family: TildaSansBold" href="shop-fullwide.html">Контакты </a></li>
                         </ul>
                     </nav>
                 </div>
@@ -97,37 +99,32 @@
         <div class="cart-content">
             <h3>Корзина</h3>
             <ul>
-                <li class="single-product-cart">
-                    <div class="cart-img">
-                        <a href="#"><img src="assets/images/cart/cart-1.jpg" alt=""></a>
-                    </div>
-                    <div class="cart-title">
-                        <h4><a href="#">Bejewelled velvet sandals</a></h4>
-                        <span> 1 × $49.00	</span>
-                    </div>
-                    <div class="cart-delete">
-                        <a href="#">×</a>
-                    </div>
-                </li>
-                <li class="single-product-cart">
-                    <div class="cart-img">
-                        <a href="#"><img src="assets/images/cart/cart-2.jpg" alt=""></a>
-                    </div>
-                    <div class="cart-title">
-                        <h4><a href="#">Contrast faux fur jacket</a></h4>
-                        <span> 1 × $49.00	</span>
-                    </div>
-                    <div class="cart-delete">
-                        <a href="#">×</a>
-                    </div>
-                </li>
+                {% for cart_elem in queryset %}
+                    <li class="single-product-cart">
+                        <div class="cart-img">
+                            <a href="#"><img src="{{ cart_elem.image.image.url }}" alt=""></a>
+                        </div>
+                        <div class="cart-title">
+                            <h4><a href="#">{{ cart_elem.product.name }}</a></h4>
+                            <span>{{ cart_elem.count }} * {{ cart_elem.product.price }}	₽</span>
+                        </div>
+                        <div class="cart-delete">
+                            <form method="POST">
+                                {% csrf_token %}
+                                <button style="border-style: none; background: none" type="submit" name="pk"
+                                        value="{{ cart_elem.pk }}">×
+                                </button>
+                            </form>
+                            {#                        <a href="#">×</a>#}
+                        </div>
+                    </li>
+                {% endfor %}
             </ul>
             <div class="cart-total">
-                <h4>Subtotal: <span>$170.00</span></h4>
+                <h4>Итого: <span>{{ total_price }} ₽</span></h4>
             </div>
             <div class="cart-checkout-btn">
-                <a class="btn-hover cart-btn-style" href="cart.html">view cart</a>
-                <a class="no-mrg btn-hover cart-btn-style" href="checkout.html">checkout</a>
+                <a class="btn-hover cart-btn-style" href="cart.html">Перейти в корзину</a>
             </div>
         </div>
     </div>

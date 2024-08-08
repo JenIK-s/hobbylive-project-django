@@ -13,9 +13,21 @@
     <link rel="shortcut icon" type="image/x-icon" href="{% static "img/logo.png" %}">
 
     <!-- Fonts -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poiret+One&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poiret+One&display=swap" rel="stylesheet">
+
+
+    <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bellota:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap"
+          rel="stylesheet">
+    <link href="{% static "fonts/TIldaSans/TildaSans-Light/TildaSans-Light.css" %}" rel="stylesheet">
+    <link href="{% static "fonts/TIldaSans/TildaSans-Regular/TildaSans-Regular.css" %}" rel="stylesheet">
+    <link href="{% static "fonts/TIldaSans/TildaSans-Medium/TildaSans-Medium.css" %}" rel="stylesheet">
+    <link href="{% static "fonts/TIldaSans/TildaSans-Semibold/TildaSans-Semibold.css" %}" rel="stylesheet">
+    <link href="{% static "fonts/TIldaSans/TildaSans-Bold/TildaSans-Bold.css" %}" rel="stylesheet">
+    <link href="{% static "fonts/TIldaSans/TildaSans-ExtraBold/TildaSans-ExtraBold.css" %}" rel="stylesheet">
+    <link href="{% static "fonts/TIldaSans/TildaSans-Black/TildaSans-Black.css" %}" rel="stylesheet">
 
     <!-- All CSS is here
 	============================================ -->
@@ -45,8 +57,17 @@
     <!-- Modernizer JS -->
 
 </head>
-<body>
+<style>
+    .body_top {
+        padding: 0;
+        margin: 0;
+        padding-top: 120px;
+    }
+
+</style>
+<body class="body_top">
 {% include "includes/header.html" %}
+
 {% block content %}
 
 {% endblock %}
