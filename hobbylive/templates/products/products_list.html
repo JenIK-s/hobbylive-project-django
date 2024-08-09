@@ -1,28 +1,26 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}
-    Товары
+    Каталог
 {% endblock %}
 {% block content %}
-    <section class="section-products">
-        <div class="container">
-            <div class="row">
+    <style>
+
+    </style>
+    <div class="container">
+        <div class="row">
+            <div class="container_product">
                 {% for product in products %}
-                    <div class="col-md-6 col-lg-4 col-xl-3">
-                        <div class="card">
-                            <a  href="{% url "products:product_detail" product.pk product.images.all.0.pk %}">
-                            <img class="card-shadow" style="border-radius: 3px" src="{{ product.images.all.0.image.url }}" width="260" height="286" alt="logo">
-                                </a>
-                            <h4></h4><h4></h4>
-                            <h4 class="product-title card-text-font">{{ product.name }}</h4>
-                            <h4></h4>
-
-                            <h4 class="product-price card-text-font">{{ product.price }}<span>₽</span></h4>
-
-                        </div>
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3 cp"> <!-- Добавлен класс product-card -->
+                        <a href="{% url 'products:product_detail' product.pk product.images.all.0.pk %}">
+                            <img src="{{ product.images.all.0.image.url }}" alt="{{ product.name }}" class="card-shadow image_product">
+                        </a>
+                        <h4></h4>
+                        <div class="product-title card-text-font title_product">{{ product.name }}</div>
+                        <div class="product-price card-price-font price_product">{{ product.price }}₽</div>
                     </div>
                 {% endfor %}
             </div>
         </div>
-    </section>
+    </div>
 {% endblock %}

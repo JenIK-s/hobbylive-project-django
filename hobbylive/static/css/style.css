@@ -17750,7 +17750,7 @@ body.body-menu-overlay::before {
 }
 
 .social-icon-style-2 a:hover.dribbble {
-    background-color: #ea4c89;
+    background-color: #51ea4c;
 }
 
 .social-icon-style-2.social-icon-hm4 a {
@@ -32145,7 +32145,7 @@ h3.cart-page-title {
 }
 
 .choice {
-    border: 1px solid black;
+
     border-radius: 3px;
 }
 
@@ -32178,3 +32178,77 @@ h3.cart-page-title {
     background-color: #fc4f4f;
 }
 
+.card-price-font {
+    font-family: "TildaSansLight", serif;
+    letter-spacing: 1px;
+    color: black;
+    font-size: 18px;
+    text-align: center
+}
+
+.container_product {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.card_product {
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* выравнивание элементов внутри карточки */
+}
+
+.image_product {
+    height: 286px;
+    width: 100%;
+    object-fit: cover;
+}
+
+.title_product {
+    flex-grow: 1; /* занимает оставшееся пространство */
+}
+
+.price_product {
+    font-weight: bold;
+}
+
+.image_index {
+    height: 1000px;
+    width: 100%;
+    object-fit: cover;
+}
+
+.body_top {
+    padding: 0;
+    margin: 0;
+    padding-top: 60px;
+}
+
+.page-footer {
+  padding: 1rem;
+  background: #333;
+  color: #fff;
+  text-align: center;
+}
+
+.page-footer.fixed-bottom {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+}
+
+.cp {
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* выравнивание элементов внутри карточки */
+}

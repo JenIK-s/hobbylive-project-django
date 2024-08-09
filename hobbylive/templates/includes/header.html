@@ -11,15 +11,7 @@
                 </div>
             </div>
             <div class="col-xl-8 col-lg-8 d-flex justify-content-center position-static">
-                <div class="main-menu menu-lh-1 main-menu-padding-1">
-                    <nav>
-                        <ul>
-                            <li><a style="font-family: TildaSansBold"
-                                   href="{% url "products:products_list" %}">Каталог</a></li>
-                            <li><a style="font-family: TildaSansBold" href="shop-fullwide.html">Контакты </a></li>
-                        </ul>
-                    </nav>
-                </div>
+
             </div>
             <div class="col-xl-2 col-lg-2">
                 <div class="header-right-wrap header-right-flex">
@@ -49,6 +41,7 @@
         </div>
     </div>
 </header>
+
 <div class="header-small-mobile section-padding-1">
     <div class="container-fluid">
         <div class="row align-items-center">
@@ -115,7 +108,6 @@
                                         value="{{ cart_elem.pk }}">×
                                 </button>
                             </form>
-                            {#                        <a href="#">×</a>#}
                         </div>
                     </li>
                 {% endfor %}
@@ -124,7 +116,7 @@
                 <h4>Итого: <span>{{ total_price }} ₽</span></h4>
             </div>
             <div class="cart-checkout-btn">
-                <a class="btn-hover cart-btn-style" href="cart.html">Перейти в корзину</a>
+                <a class="btn-hover cart-btn-style" href="cart.html">Оформить заказ</a>
             </div>
         </div>
     </div>
@@ -147,8 +139,9 @@
                         <!-- mobile menu navigation start -->
                         <nav>
                             <ul class="mobile-menu">
-                                <li><a href="#">Каталог</a></li>
-                                <li><a href="shop-fullwide.html">Контакты </a></li>
+                                <li><a href="{% url "products:products_list" %}">Каталог</a></li>
+                                <li><a href="#">Контакты </a></li>
+                                <li><a href="#">Самовывоз и Доставка </a></li>
                             </ul>
                         </nav>
                         <!-- mobile menu navigation end -->
@@ -160,11 +153,9 @@
             <div class="header-aside-menu">
                 <nav>
                     <ul>
-                        <li><a href="#">About Toro</a></li>
-                        <li><a href="#">Help Center</a></li>
-                        <li><a href="#">Collection</a></li>
-                        <li><a href="#">Blog</a></li>
-                        <li><a href="#">New Look</a></li>
+                        <li><a href="{% url "products:products_list" %}">Каталог</a></li>
+                        <li><a href="#">Контакты </a></li>
+                        <li><a href="#">Самовывоз и Доставка </a></li>
                     </ul>
                 </nav>
             </div>
@@ -174,11 +165,12 @@
                     <li><i class="dlicon ui-1_home-minimal"></i>г. Москва, ул. Артюхиной д. 4</li>
                 </ul>
             </div>
-            <div class="social-icon-style mb-25">
-                <a class="facebook" href="#"><i class="fa fa-facebook"></i></a>
-                <a class="twitter" href="#"><i class="fa fa-twitter"></i></a>
-                <a class="google-plus" href="#"><i class="fa fa-google-plus"></i></a>
-                <a class="behance" href="#"><i class="fa fa-behance"></i></a>
+            <div class="social-icon-style-2 social-icon">
+                <a class="facebook" href="tel:+79251631300"><i class="fa fa-mobile-phone"></i></a>
+                <a class="dribbble"
+                   href="https://wa.me/79251631300?text=%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5%21"><i
+                        class="fa fa-whatsapp"></i></a>
+                <a class="twitter" href="https://t.me/hobbylivemsk"><i class="fa fa-telegram"></i></a>
             </div>
             <div class="copyright">
                 <p>© 2024 Hobby Live</p>
