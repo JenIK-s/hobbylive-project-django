@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.db.models import F
 from django.shortcuts import render, redirect
@@ -5,7 +6,7 @@ from .models import (
     Product, Cart, ProductImage,
     Order, ProductInOrder, Wishlist
 )
-from .forms import QuantityForm, OrderForm
+from .forms import QuantityForm, OrderForm, AccountDetailForm
 from django.contrib import messages
 
 
@@ -69,7 +70,26 @@ def product_detail(request, pk, img_id):
 @login_required
 def profile(request):
     orders = Order.objects.filter(user=request.user)
-    return render(request, "products/profile.html", {"orders": orders})
+    data = {
+        "first_name": request.user.first_name,
+        "last_name": request.user.last_name,
+        "email": request.user.email,
+        "username": request.user.username
+    }
+    form = AccountDetailForm(initial=data)
+    if request.method == "POST":
+        form = AccountDetailForm(request.POST)
+        if form.is_valid():
+            # print(form.data["email"])
+            data = {
+                "first_name": form.data["first_name"],
+                "last_name": form.data["last_name"],
+                "email": form.data["email"],
+                "username": form.data["username"]
+            }
+            User = get_user_model()
+            User.objects.filter(id=request.user.id).update(**data)
+    return render(request, "products/profile.html", {"orders": orders, "form": form})
 
 
 @login_required
@@ -115,6 +135,19 @@ def order_detail(request, pk):
 def wishlist(request):
     user_wishlist = Wishlist.objects.filter(user=request.user)
     if request.method == "POST":
-        pk = request.POST.get("pk_w")
+        if request.POST.get("action"):
+            pk = request.POST.get("action")
+            wishlist_elem = Wishlist.objects.filter(pk=pk)
+            if img_not_in_shop_or_wishlist(wishlist_elem[0].image, request.user, Cart):
+                Cart.objects.create(
+                    user=request.user,
+                    product=wishlist_elem[0].product,
+                    image=wishlist_elem[0].image,
+                    count=1
+                )
+            else:
+                Cart.objects.filter(image=wishlist_elem[0].image).update(count=F("count") + 1)
+        else:
+            pk = request.POST.get("pk_w")
         Wishlist.objects.filter(pk=pk).delete()
     return render(request, "products/wishlist.html", {"wishlist": user_wishlist})

@@ -57,7 +57,13 @@
                                                     <td class="wishlist-price"><span
                                                             class="amount">₽{{ elem.product.price }}</span></td>
                                                     <td class="wishlist-cart">
-                                                        <a href="#">В корзину</a>
+                                                        <form class="product-details-action-wrap d-flex justify-content-center"
+                                                              method="POST">
+                                                            {% csrf_token %}
+                                                            <button class="in_order_list " type="submit" name="action"
+                                                                    value="{{ elem.pk }}">В корзину
+                                                            </button>
+                                                        </form>
                                                     </td>
                                                 </tr>
                                             {% endfor %}

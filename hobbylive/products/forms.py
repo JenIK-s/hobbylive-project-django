@@ -18,3 +18,10 @@ class OrderForm(forms.Form):
     address = forms.CharField(max_length=1000, label="Адрес ПВЗ")
     phone_number = forms.CharField(max_length=255, label="Номер телефона")
     carrier = forms.ChoiceField(choices=choises, widget=forms.Select(), label="Служба доставки")
+
+
+class AccountDetailForm(forms.Form):
+    first_name = forms.CharField(max_length=255, label="Имя")
+    last_name = forms.CharField(max_length=255, label="Фамилия")
+    username = forms.CharField(max_length=255, label="Логин")
+    email = forms.EmailField(max_length=255, label="Почта")
