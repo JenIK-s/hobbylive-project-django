@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Избранное
+{% endblock %}
+{% block content %}
+    <!doctype html>
+    <html class="no-js" lang="en">
+    <div class="breadcrumb-area section-padding-1 bg-gray breadcrumb-ptb-1">
+        <div class="container-fluid">
+            <div class="breadcrumb-content text-center">
+                <div class="breadcrumb-title">
+                    <h2>Избранное</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="wishlist-main-area pt-100 pb-100">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                    <form action="#">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="table-content table-responsive wishlist-table-content">
+                                    {% if wishlist %}
+                                        <table>
+                                            <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th></th>
+                                                <th>Товар</th>
+                                                <th> Цена</th>
+                                                <th class="wishlist-cart-none"><span>Add to cart</span></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for elem in wishlist %}
+                                                <tr>
+                                                    <td class="wishlist-remove">
+                                                        <form method="POST">
+                                                            {% csrf_token %}
+                                                            <button style="border-style: none; background: none"
+                                                                    type="submit" name="pk_w"
+                                                                    value="{{ elem.pk }}"><a><i
+                                                                    class="dlicon ui-1_simple-remove"></i></a>
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                    <td class="wishlist-img">
+                                                        <a href="#"><img src="{{ elem.image.image.url }}"
+                                                                         style="width: 60px;" alt=""></a>
+                                                    </td>
+                                                    <td class="wishlist-name">
+                                                        <a href="#">{{ elem.product.name }}</a>
+                                                    </td>
+                                                    <td class="wishlist-price"><span
+                                                            class="amount">₽{{ elem.product.price }}</span></td>
+                                                    <td class="wishlist-cart">
+                                                        <a href="#">В корзину</a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                        Вы ничего не добавили в избранное
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

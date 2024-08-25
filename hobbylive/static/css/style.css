@@ -32104,14 +32104,26 @@ h3.cart-page-title {
 }
 
 
+.image-column {
+    margin: 10px; /* Установите желаемый отступ */
+}
+
 .font-index {
     font-family: "TildaSansLight", serif;
     font-size: 58px;
     color: #FFFFF0;
     line-height: 65px;
     letter-spacing: 0.04em;
-" font-weight: 30 px;
+    display: block; /* Позволяет тексту занимать всю ширину */
+    text-align: center; /* Центрирование текста */
+    word-wrap: break-word; /* Перенос слов при необходимости */
+    padding: 0 10px; /* Отступы по бокам, чтобы текст не прижимался к краям */
+}
 
+@media (max-width: 600px) {
+    .font-index {
+        font-size: 50px; /* Меньший размер шрифта для мобильных устройств */
+    }
 }
 
 .card {
@@ -32229,18 +32241,18 @@ h3.cart-page-title {
 }
 
 .page-footer {
-  padding: 1rem;
-  background: #333;
-  color: #fff;
-  text-align: center;
+    padding: 1rem;
+    background: #333;
+    color: #fff;
+    text-align: center;
 }
 
 .page-footer.fixed-bottom {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 10;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
 }
 
 .cp {
@@ -32251,4 +32263,18 @@ h3.cart-page-title {
     display: flex;
     flex-direction: column;
     justify-content: space-between; /* выравнивание элементов внутри карточки */
+}
+
+.sansa_text {
+    font-family: "TildaSansLight", serif;
+}
+
+.product-count {
+    display: inline-block;
+    height: 56px;
+    overflow: hidden;
+    padding: 0;
+    position: relative;
+    width: 100px;
+    text-align: center;
 }

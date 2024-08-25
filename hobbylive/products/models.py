@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.sessions.models import Session
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class Characteristic(models.Model):
@@ -27,7 +30,11 @@ class Product(models.Model):
         through="ProductCharacteristic",
         verbose_name="Характеристики"
     )
-    price = models.IntegerField(
+    discount = models.IntegerField(
+        default=0,
+        verbose_name="Скидка в процентах"
+    )
+    price_not_discount = models.IntegerField(
         default=100,
         verbose_name="Цена"
     )
@@ -38,6 +45,10 @@ class Product(models.Model):
     class Meta:
         verbose_name = "Продукт"
         verbose_name_plural = "Продукты"
+
+    @property
+    def price(self):
+        return self.price_not_discount - (self.price_not_discount * (self.discount / 100))
 
 
 class ProductImage(models.Model):
@@ -76,14 +87,10 @@ class ProductCharacteristic(models.Model):
 
 
 class Cart(models.Model):
-    # session = models.ForeignKey(
-    #     Session,
-    #     on_delete=models.CASCADE,
-    #     verbose_name="Сессия"
-    # )
-    session = models.CharField(
-        max_length=255,
-        verbose_name="Сессия"
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name="Пользователь"
     )
     product = models.ForeignKey(
         Product,
@@ -105,7 +112,21 @@ class Cart(models.Model):
 
 
 class Wishlist(models.Model):
-    pass
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name="Пользователь"
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        verbose_name="Продукт",
+    )
+    image = models.ForeignKey(
+        ProductImage,
+        on_delete=models.CASCADE,
+        verbose_name="Изображение",
+    )
 
     class Meta:
         verbose_name = "Избранное"
@@ -129,5 +150,51 @@ class Categories(models.Model):
         verbose_name_plural = "Категории"
 
 
+class ProductInOrder(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name="Пользователь"
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        verbose_name="Продукт",
+    )
+    image = models.ForeignKey(
+        ProductImage,
+        on_delete=models.CASCADE,
+        verbose_name="Изображение",
+    )
+    count = models.IntegerField(default=1)
 
 
+class Order(models.Model):
+    choises = (
+        ("Собирается", "Собирается"),
+        ("В пути", "В пути"),
+        ("Доставлено", "Доставлено"),
+        ("Получено", "Получено")
+    )
+    products = models.ManyToManyField(
+        ProductInOrder,
+        verbose_name="Продукт",
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name="Пользователь"
+    )
+    status = models.CharField(
+        max_length=255,
+        default='Собирается',
+        choices=choises,
+        verbose_name='Статус доставки'
+    )
+    date = models.DateTimeField(auto_now=True)
+    total_price = models.IntegerField()
+    address = models.CharField(max_length=1000)
+    carrier = models.CharField(
+        max_length=255,
+        verbose_name='Перевозчик'
+    )

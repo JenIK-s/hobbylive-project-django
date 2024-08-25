@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Главная
+{% endblock %}
+{% block content %}
+
+    <div class="breadcrumb-area section-padding-1 bg-gray breadcrumb-ptb-1">
+        <div class="container-fluid">
+            <div class="breadcrumb-content text-center">
+                <div class="breadcrumb-title">
+                    <h2>Регистрация</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="login-register-area pt-95 pb-100">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 col-md-6">
+                    <div class="login-register-wrap">
+                        <h3><i class="fa fa-user-o"></i> Регистрация</h3>
+                        <div class="login-register-form">
+                            <form method="post" action={% url "users:signup" %}>
+                                {% csrf_token %}
+                                {% for elem in form %}
+                                    <div class="sin-login-register">
+                                        <label for="floatingInput">{{ elem.label }} <span>*</span></label>
+                                        {{ elem }}
+                                    </div>
+                                {% endfor %}
+                                <div class="login-register-btn">
+                                    <button type="submit">Регистрация</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

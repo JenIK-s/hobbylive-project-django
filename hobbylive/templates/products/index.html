@@ -4,12 +4,25 @@
     Главная
 {% endblock %}
 {% block content %}
-  <div class="top-foto">
-    <img class="image_index" src="{% static "img/index_test.jpg" %}" style="filter: brightness(30%); "  alt="logo">
-  </div>
-  <div class="box">
+{#  <div class="top-foto">#}
+{#    <img class="image_index" src="{% static "img/index_test.jpg" %}" style="filter: brightness(30%); "  alt="logo">#}
+{#  </div>#}
+{#  <div class="box">#}
+{#  <div class="section-title-1 mb-70 text-center centered">#}
+{#      <a class="font-index" >Товары для творческих<br>и изобретательных</a>#}
+{#                </div>#}
+{#  </div>#}
+
+    <div class="top-foto">
+  <img class="image_index" src="{% static 'img/index_test.jpg' %}" style="filter: brightness(30%);" alt="logo">
+</div>
+<div class="box">
   <div class="section-title-1 mb-70 text-center centered">
-      <a class="font-index" >Товары для творческих<br>и изобретательных</a>
-                </div>
+    <a class="font-index">Товары для творческих<br>и изобретательных</a>
   </div>
+</div>
+
+<style>
+
+</style>
 {% endblock %}

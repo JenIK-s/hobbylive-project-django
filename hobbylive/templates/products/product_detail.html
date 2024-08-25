@@ -7,11 +7,12 @@
     <div class="row">
         <div class="col-12 col-lg-6">
             <div class="product-details-tab">
-                <div class="product-dec-right pro-dec-big-img-slider">
+                <div class="pro-dec-big-img-slider"
+                     style="display: flex; justify-content: center; align-items: center;">
                     <div class="easyzoom-style">
                         <div class="easyzoom easyzoom--overlay">
                             <a href="{{ image_large }}">
-                                <img style="border-radius: 3px; width: 100%; height: auto; object-fit: cover;"
+                                <img style="border-radius: 3px; width: 100%; height: auto; max-width: 400px; object-fit: cover;"
                                      src="{{ image_large }}" alt="">
                             </a>
                         </div>
@@ -23,26 +24,23 @@
             </div>
         </div>
         <div class="col-12 col-lg-6 d-flex flex-column align-items-center justify-content-center">
-            <!-- Центрирование на мобильных -->
             <div class="product-details-col-72">
                 <div class="product-details-content p-dec-content-edit text-center">
-                    <!-- Выравнивание текста по центру -->
                     <h2 class="uppercase">{{ product.name }}</h2>
                     <h3>₽{{ product.price }}</h3>
                     <div class="product-details-peragraph">
                         <section class="section-products">
                             <div class="container">
-                                <div class="row justify-content-center"> <!-- Центрирование изображений -->
+                                <div class="row justify-content-center">
                                     <form class="row" method="POST">
                                         {% csrf_token %}
                                         {% for images in product.images.all %}
-                                            <div class="col-4 col-md-2 mb-2"> <!-- Добавлен отступ снизу -->
-                                                <div class="card text-center"> <!-- Выравнивание текста по центру -->
+                                            <div class="image-column col-2 col-sm-4 col-md-1 col-lg-1 mb-1">
+                                                <div class="card text-center mx-auto">
                                                     <button style="width: 50px; height: 50px; background-color: rgba(255, 255, 255, 0); border: none;"
-                                                            type="submit" name="image"
-                                                            value="{{ images.pk }}">
-                                                        <img class="choice" src="{{ images.image.url }}"
-                                                             width="50" height="50" alt="logo">
+                                                            type="submit" name="image" value="{{ images.pk }}">
+                                                        <img class="choice" src="{{ images.image.url }}" width="50"
+                                                             height="50" alt="logo">
                                                     </button>
                                                 </div>
                                             </div>
@@ -53,7 +51,6 @@
                         </section>
                     </div>
                     <form class="product-details-action-wrap d-flex justify-content-center" method="POST">
-                        <!-- Центрирование кнопок -->
                         {% csrf_token %}
                         <button type="button" id="decrement"
                                 style="width: 30px; height: 30px; background-color: rgba(255, 255, 255, 0); border: none;">
@@ -64,12 +61,13 @@
                                 style="width: 30px; height: 30px; background-color: rgba(255, 255, 255, 0); border: none;">
                             +
                         </button>
-                        <button class="in_order_list" type="submit" name=
-
-                                "action" value="ok">В корзину
+                        <button class="in_order_list" type="submit" name="action" value="ok">В корзину
                         </button>
                         <div class="product-details-wishlist">
-                            <a title="Add to wishlist" href="#"><i class="fa fa-heart"></i></a>
+                            <button type="submit" name="add_wishlist" value="ok"
+                                    style="background-color: rgba(255, 255, 255, 0); border: none;">
+                                <a title="Add to wishlist"><i class="fa {{ heart }}"></i></a>
+                            </button>
                         </div>
                     </form>
                 </div>

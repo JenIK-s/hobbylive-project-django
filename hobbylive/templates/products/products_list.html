@@ -10,6 +10,7 @@
     <div class="container">
         <div class="row">
             <div class="container_product">
+            {% if products %}
                 {% for product in products %}
                     <div class="col-12 col-sm-6 col-md-4 col-lg-3 cp"> <!-- Добавлен класс product-card -->
                         <a href="{% url 'products:product_detail' product.pk product.images.all.0.pk %}">
@@ -17,9 +18,12 @@
                         </a>
                         <h4></h4>
                         <div class="product-title card-text-font title_product">{{ product.name }}</div>
-                        <div class="product-price card-price-font price_product">{{ product.price }}₽</div>
+                        <div class="product-price card-price-font price_product">₽{{ product.price }}</div>
                     </div>
                 {% endfor %}
+                {% else %}
+                <h2>По Вашему запросу ничего не найдено...</h2>
+            {% endif %}
             </div>
         </div>
     </div>

@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import (
     Product, ProductImage, ProductCharacteristic,
     Cart, Categories, Wishlist,
-    Characteristic
+    Characteristic, Order, ProductInOrder,
 )
 
 
@@ -58,3 +58,19 @@ class CharacteristicAdmin(admin.ModelAdmin):
         "name",
     )
     list_filter = ("name",)
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = (
+        "pk",
+        "user"
+    )
+
+
+@admin.register(ProductInOrder)
+class ProductInOrderAdmin(admin.ModelAdmin):
+    list_display = (
+        "pk",
+        "product"
+    )
