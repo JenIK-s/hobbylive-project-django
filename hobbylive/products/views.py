@@ -46,15 +46,20 @@ def product_detail(request, pk, img_id):
                     )
                 else:
                     Cart.objects.filter(image=img).update(count=F("count") + request.POST.get("qtybutton"))
-        elif request.POST.get("add_wishlist"):
-            if img_not_in_shop_or_wishlist(img_id, request.user, Wishlist):
-                Wishlist.objects.create(
-                    user=request.user,
-                    product=product,
-                    image=img,
-                )
             else:
-                Wishlist.objects.filter(user=request.user, image=img).delete()
+                return redirect("users:signin")
+        elif request.POST.get("add_wishlist"):
+            if request.user.is_authenticated:
+                if img_not_in_shop_or_wishlist(img_id, request.user, Wishlist):
+                    Wishlist.objects.create(
+                        user=request.user,
+                        product=product,
+                        image=img,
+                    )
+                else:
+                    Wishlist.objects.filter(user=request.user, image=img).delete()
+            else:
+                return redirect("users:signin")
     return render(
         request,
         "products/product_detail.html",
@@ -151,3 +156,7 @@ def wishlist(request):
             pk = request.POST.get("pk_w")
         Wishlist.objects.filter(pk=pk).delete()
     return render(request, "products/wishlist.html", {"wishlist": user_wishlist})
+
+
+def categories(request):
+    return render(request, "products/categories.html")

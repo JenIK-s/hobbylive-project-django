@@ -150,8 +150,8 @@
                                     <li><a href="{% url "users:signup" %}">Регистрация</a></li>
                                 {% endif %}
                                 <li><a href="{% url "products:products_list" %}">Каталог</a></li>
-                                <li><a href="#">Контакты </a></li>
-                                <li><a href="#">Самовывоз и Доставка </a></li>
+{#                                <li><a href="#">Контакты </a></li>#}
+{#                                <li><a href="#">Самовывоз и Доставка </a></li>#}
                             </ul>
                         </nav>
                         <!-- mobile menu navigation end -->
@@ -170,8 +170,9 @@
                             <li><a href="{% url "users:signup" %}">Регистрация</a></li>
                         {% endif %}
                         <li><a href="{% url "products:products_list" %}">Каталог</a></li>
-                        <li><a href="#">Контакты </a></li>
-                        <li><a href="#">Самовывоз и Доставка </a></li>
+                        <li><a href="{% url "products:categories" %}">Cate</a></li>
+{#                        <li><a href="#">Контакты </a></li>#}
+{#                        <li><a href="#">Самовывоз и Доставка </a></li>#}
                     </ul>
                 </nav>
             </div>

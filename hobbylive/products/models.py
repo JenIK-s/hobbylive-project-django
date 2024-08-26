@@ -144,6 +144,10 @@ class Categories(models.Model):
         related_name="Categories",
         verbose_name="Продукт"
     )
+    image = models.ImageField(
+        upload_to="categories_photo/",
+        verbose_name="Изображение"
+    )
 
     class Meta:
         verbose_name = "Категория"
