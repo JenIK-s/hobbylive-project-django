@@ -49,6 +49,21 @@
                                 </div>
                             </div>
                         </section>
+                        <section class="section-products">
+                            <div class="container product-details-content">
+                                <div class="row justify-content-center">
+                                    <h4>{{ product.description }}</h4>
+                                    <ul>
+                                        {% for characteristic in product.characteristic.all %}
+                                            <li>
+                                                {{ characteristic.characteristic.name }}:
+                                                {{ characteristic.amount }} {{ characteristic.characteristic.measurement_unit }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </section>
                     </div>
                     <form class="product-details-action-wrap d-flex justify-content-center" method="POST">
                         {% csrf_token %}

@@ -4,35 +4,35 @@
     Оформление заказа
 {% endblock %}
 {% block content %}
-        <div class="breadcrumb-area section-padding-1 bg-gray breadcrumb-ptb-1">
-            <div class="container-fluid">
-                <div class="breadcrumb-content text-center">
-                    <div class="breadcrumb-title">
+    <div class="breadcrumb-area section-padding-1 bg-gray breadcrumb-ptb-1">
+        <div class="container-fluid">
+            <div class="breadcrumb-content text-center">
+                <div class="breadcrumb-title">
 
-                        {% if messages %}
-<ul class="messages">
-    {% for message in messages %}
-    <h2  {% if message.tags %} class=" {{ message.tags }} " {% endif %}> {{ message }} </h2>
-    {% endfor %}
-</ul>
-{% else %}
-                   <h2>Оформление заказа</h2>
+                    {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                                <h2  {% if message.tags %} class=" {{ message.tags }} " {% endif %}> {{ message }} </h2>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <h2>Оформление заказа</h2>
                     {% endif %}
-                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
     <div class="my-account-area pt-100 pb-95">
         <div class="container">
             <div class="row flex-row-reverse">
                 <div class="col-lg-12">
-                {% if not messages %}
-                    <div class="myaccount-tab-menu nav" role="tablist">
-                        <a href="#pickup" data-bs-toggle="tab">Самовывоз</a>
-                        <a href="#delivery" data-bs-toggle="tab">Доставка</a>
-                    </div>
-                {% endif %}
+                    {% if not messages %}
+                        <div class="myaccount-tab-menu nav" role="tablist">
+                            <a href="#pickup" data-bs-toggle="tab">Самовывоз</a>
+                            <a href="#delivery" data-bs-toggle="tab">Доставка</a>
+                        </div>
+                    {% endif %}
                     <div class="tab-content" id="myaccountContent">
                         <div class="tab-pane fade" id="pickup" role="tabpanel">
                             <div class="login-register-area pt-95 pb-100">
@@ -41,9 +41,19 @@
                                         <div class="col-lg-6 col-md-6">
                                             <div class="login-register-wrap">
                                                 <div class="login-register-form">
-                                                    Забрать заказ можно по адресу: г. Москва, ул. Артюхиной д. 4 с 10:00 до 17:00.
+                                                    Забрать заказ можно по адресу: г. Москва, ул. Артюхиной д. 4 с 10:00
+                                                    до 17:00.
 
-Оформите заказ и на почту Вам придет уведомление о доставке товара в пункт самовывоза.
+                                                    Оформите заказ и на почту Вам придет уведомление о доставке товара в
+                                                    пункт самовывоза.
+                                                    <form method="post" action={% url "products:order" %}>
+                                                        {% csrf_token %}
+                                                    <div class="login-register-btn-remember">
+                                                            <div class="login-register-btn">
+                                                                <button type="submit" name="to_order_pickup" value="ok">Заказать</button>
+                                                            </div>
+                                                        </div>
+                                                    </form>
                                                 </div>
                                             </div>
                                         </div>
@@ -58,8 +68,7 @@
                                         <div class="col-lg-6 col-md-6">
                                             <div class="login-register-wrap">
                                                 <div class="login-register-form">
-                                                    <form method="post"
-                                                          action={% url "products:order" %}>
+                                                    <form method="post" action={% url "products:order" %}>
                                                         {% csrf_token %}
                                                         {% for elem in form %}
                                                             <div class="sin-login-register">
@@ -70,7 +79,7 @@
                                                         {% endfor %}
                                                         <div class="login-register-btn-remember">
                                                             <div class="login-register-btn">
-                                                                <button type="submit">Заказать</button>
+                                                                <button type="submit" name="to_order" value="ok2">Заказать</button>
                                                             </div>
                                                         </div>
                                                     </form>
@@ -86,4 +95,21 @@
             </div>
         </div>
     </div>
+    {#    <script>#}
+    {#    document.addEventListener('DOMContentLoaded', function() {#}
+    {#        const carrierSelect = document.getElementById('id_carrier');#}
+    {#        const outputDiv = document.getElementById('output');#}
+    {##}
+    {#        carrierSelect.addEventListener('change', function() {#}
+    {#            if (this.value === "СДЭК") {#}
+    {#                outputDiv.textContent = "123";#}
+    {#            } else if (this.value === "ПочтаРоссии") {#}
+    {#                outputDiv.textContent = "000";#}
+    {#            } else {#}
+    {#                outputDiv.textContent = ""; // Если ничего не выбрано#}
+    {#            }#}
+    {#        });#}
+    {#    });#}
+    {#</script>#}
+
 {% endblock %}

@@ -29,12 +29,17 @@
                                                 <td class="product-remove">
                                                 </td>
                                                 <td class="product-img">
-                                                    <a href="#"><img src="{{ product.image.image.url }}" style="width: 60px;" alt=""></a>
+                                                    <a href="#"><img src="{{ product.image.image.url }}"
+                                                                     style="width: 60px;" alt=""></a>
                                                 </td>
                                                 <td class="product-name"><a href="#">{{ product.product.name }}</a></td>
-                                                <td class="product-price"><span class="amount">₽{{ product.product.price }}</span></td>
-                                                <td class="product-price"><span class="amount">{{ product.count }}</span></td>
-                                                <td class="product-total"><span>₽{% widthratio product.product.price 1 product.count %}</span></td>
+                                                <td class="product-price"><span
+                                                        class="amount">₽{{ product.product.price }}</span></td>
+                                                <td class="product-price"><span
+                                                        class="amount">{{ product.count }}</span></td>
+                                                <td class="product-total">
+                                                    <span>₽{% widthratio product.product.price 1 product.count %}</span>
+                                                </td>
                                             </tr>
                                         {% endfor %}
                                         </tbody>
@@ -46,10 +51,20 @@
                             </div>
                             <div class="col-lg-4">
                                 <div class="grand-total-wrap">
-                                    <h4>Заказ №{{ order.pk }}</h4>
+                                    <h4>Заказ №{{ order.pk }} | {{ order.status }}</h4>
                                     <div class="grand-total-content">
                                         <ul>
                                             <li>Итого <span> ₽{{ order.total_price }}</span></li>
+                                            <li>
+                                                {% if order.status == "Создан" %}
+                                                    <form method="POST" action="{% url "products:order_detail" order.pk %}">
+                                                        {% csrf_token %}
+                                                        <div class="login-register-btn">
+                                                            <button type="submit" name="delete" value="ok">Отменить заказ</button>
+                                                        </div>
+                                                    </form>
+                                                {% endif %}
+                                            </li>
                                         </ul>
                                     </div>
                                 </div>

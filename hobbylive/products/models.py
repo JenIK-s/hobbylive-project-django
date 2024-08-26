@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.contrib.sessions.models import Session
 from django.contrib.auth import get_user_model
@@ -13,6 +15,7 @@ class Characteristic(models.Model):
     measurement_unit = models.CharField(
         max_length=100,
         verbose_name="Единицы измерения",
+        blank=True,
     )
 
     class Meta:
@@ -46,8 +49,8 @@ class Product(models.Model):
     )
 
     class Meta:
-        verbose_name = "Продукт"
-        verbose_name_plural = "Продукты"
+        verbose_name = "Товар"
+        verbose_name_plural = "Товары"
 
     @property
     def price(self):
@@ -88,6 +91,14 @@ class ProductCharacteristic(models.Model):
         on_delete=models.CASCADE,
         related_name="characteristic",
         verbose_name="Продукт"
+    )
+    amount = models.PositiveSmallIntegerField(
+        validators=[
+            MinValueValidator(
+                1, 'Количество не может быть меньше 1'
+            )
+        ],
+        verbose_name='Количество',
     )
 
     class Meta:
@@ -156,9 +167,8 @@ class Categories(models.Model):
         max_length=500,
         verbose_name="Наименование",
     )
-    product = models.ForeignKey(
+    product = models.ManyToManyField(
         Product,
-        on_delete=models.CASCADE,
         related_name="Categories",
         verbose_name="Продукт"
     )
@@ -198,11 +208,12 @@ class ProductInOrder(models.Model):
         verbose_name_plural = "Товары в заказе"
 
     def __str__(self):
-        return f"{self.user.name} | {self.product.name} Cart"
+        return f"{self.user.username} | {self.product.name}"
 
 
 class Order(models.Model):
     choises = (
+        ("Создан", "Создан"),
         ("Собирается", "Собирается"),
         ("В пути", "В пути"),
         ("Доставлено", "Доставлено"),
@@ -219,13 +230,18 @@ class Order(models.Model):
     )
     status = models.CharField(
         max_length=255,
-        default='Собирается',
+        default='Создан',
         choices=choises,
         verbose_name='Статус доставки'
     )
     date = models.DateTimeField(auto_now=True)
-    total_price = models.IntegerField()
-    address = models.CharField(max_length=1000)
+    total_price = models.IntegerField(
+        verbose_name="Сумма к оплате"
+    )
+    address = models.CharField(
+        max_length=1000,
+        verbose_name="Адрес"
+    )
     carrier = models.CharField(
         max_length=255,
         verbose_name='Перевозчик'
@@ -236,4 +252,4 @@ class Order(models.Model):
         verbose_name_plural = "Заказы"
 
     def __str__(self):
-        return f"{self.user.name} Order"
+        return f"{self.user.username} Order"

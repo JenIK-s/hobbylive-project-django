@@ -4,7 +4,8 @@ from django.db.models import F
 from django.shortcuts import render, redirect
 from .models import (
     Product, Cart, ProductImage,
-    Order, ProductInOrder, Wishlist
+    Order, ProductInOrder, Wishlist,
+    Categories
 )
 from .forms import QuantityForm, OrderForm, AccountDetailForm
 from django.contrib import messages
@@ -14,8 +15,9 @@ def index(request):
     return render(request, "products/index.html")
 
 
-def products_list(request):
-    return render(request, "products/products_list.html")
+def products_list(request, categories_id):
+    queryset = Categories.objects.get(id=categories_id).product.all()
+    return render(request, "products/products_list.html", {"products": queryset})
 
 
 def img_not_in_shop_or_wishlist(img_id: int, user, model) -> bool:
@@ -85,7 +87,6 @@ def profile(request):
     if request.method == "POST":
         form = AccountDetailForm(request.POST)
         if form.is_valid():
-            # print(form.data["email"])
             data = {
                 "first_name": form.data["first_name"],
                 "last_name": form.data["last_name"],
@@ -97,43 +98,58 @@ def profile(request):
     return render(request, "products/profile.html", {"orders": orders, "form": form})
 
 
+def create_order(user, address="г. Москва, ул. Артюхиной д. 4", carrier="Самовывоз"):
+    queryset = Cart.objects.filter(user=user)
+    total_price = 0
+    for elem in queryset:
+        total_price += elem.product.price * elem.count
+    user_order = Order.objects.create(
+        user=user,
+        address=address,
+        total_price=total_price,
+        carrier=carrier
+    )
+    for elem in queryset:
+        product = ProductInOrder.objects.create(
+            user=user,
+            product=elem.product,
+            image=elem.image,
+            count=elem.count
+        )
+        user_order.products.add(product)
+    user_order.save()
+    queryset.delete()
+
+
 @login_required
 def order(request):
     data = {"first_name": request.user.first_name, "last_name": request.user.last_name}
     form = OrderForm(data)
     if request.method == "POST":
-        form = OrderForm(request.POST)
-        if form.is_valid():
-            queryset = Cart.objects.filter(user=request.user)
-            total_price = 0
-            for elem in queryset:
-                total_price += elem.product.price * elem.count
-            user_order = Order.objects.create(
-                user=request.user,
-                address=request.POST.get('address'),
-                total_price=total_price,
-                carrier=request.POST.get('carrier')
-            )
-            for elem in queryset:
-                product = ProductInOrder.objects.create(
-                    user=request.user,
-                    product=elem.product,
-                    image=elem.image,
-                    count=elem.count
-                )
-                user_order.products.add(product)
-            user_order.save()
-            queryset.delete()
+        print("POST")
+        if request.POST.get("to_order"):
+            print("to_order")
+            form = OrderForm(request.POST)
+            if form.is_valid():
+                create_order(request.user, request.POST.get("address"), request.POST.get("carrier"))
+                messages.success(request, "Заказ успешно оформлен")
+        elif request.POST.get("to_order_pickup"):
+            print("to_order_pickup")
+            create_order(request.user)
             messages.success(request, "Заказ успешно оформлен")
-        else:
-            messages.error(request, "Заказ не был оформлен")
+
+        # else:
+        #     messages.error(request, "Заказ не был оформлен")
     return render(request, "products/order.html", {"form": form})
 
 
 @login_required
 def order_detail(request, pk):
-    user_order = Order.objects.get(pk=pk)
-    return render(request, "products/order_detail.html", {"order": user_order})
+    user_order = Order.objects.filter(pk=pk)
+    if request.method == "POST":
+        user_order.delete()
+        return redirect("products:profile")
+    return render(request, "products/order_detail.html", {"order": user_order[0]})
 
 
 @login_required
@@ -143,7 +159,7 @@ def wishlist(request):
         if request.POST.get("action"):
             pk = request.POST.get("action")
             wishlist_elem = Wishlist.objects.filter(pk=pk)
-            if img_not_in_shop_or_wishlist(wishlist_elem[0].image, request.user, Cart):
+            if img_not_in_shop_or_wishlist(wishlist_elem[0].image.id, request.user, Cart):
                 Cart.objects.create(
                     user=request.user,
                     product=wishlist_elem[0].product,
@@ -159,4 +175,5 @@ def wishlist(request):
 
 
 def categories(request):
-    return render(request, "products/categories.html")
+    queryset = Categories.objects.all()
+    return render(request, "products/categories.html", {"categories": queryset})

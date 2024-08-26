@@ -11,9 +11,14 @@ class ProductImageInline(admin.TabularInline):
     model = ProductImage
 
 
+class ProductCharacteristicInline(admin.TabularInline):
+    fk_name = "product"
+    model = ProductCharacteristic
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    inlines = (ProductImageInline,)
+    inlines = (ProductImageInline, ProductCharacteristicInline)
     list_display = (
         "pk",
         "name",
