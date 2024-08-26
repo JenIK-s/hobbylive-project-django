@@ -19,6 +19,9 @@ class Characteristic(models.Model):
         verbose_name = "Характеристика"
         verbose_name_plural = "Характеристики"
 
+    def __str__(self):
+        return self.name
+
 
 class Product(models.Model):
     name = models.CharField(
@@ -50,6 +53,9 @@ class Product(models.Model):
     def price(self):
         return self.price_not_discount - (self.price_not_discount * (self.discount / 100))
 
+    def __str__(self):
+        return self.name
+
 
 class ProductImage(models.Model):
     image = models.ImageField(
@@ -66,6 +72,9 @@ class ProductImage(models.Model):
     class Meta:
         verbose_name = "Изображения продукта"
         verbose_name_plural = "Изображения продуктов"
+
+    def __str__(self):
+        return f"{self.product.name} | {self.image}"
 
 
 class ProductCharacteristic(models.Model):
@@ -84,6 +93,9 @@ class ProductCharacteristic(models.Model):
     class Meta:
         verbose_name = "Характеристика продукта"
         verbose_name_plural = "Характеристики продуктов"
+
+    def __str__(self):
+        return f"{self.product.name} | {self.characteristic.name}"
 
 
 class Cart(models.Model):
@@ -110,6 +122,9 @@ class Cart(models.Model):
         verbose_name = "Корзина"
         verbose_name_plural = "Корзины"
 
+    def __str__(self):
+        return f"{self.user} Cart"
+
 
 class Wishlist(models.Model):
     user = models.ForeignKey(
@@ -132,6 +147,9 @@ class Wishlist(models.Model):
         verbose_name = "Избранное"
         verbose_name_plural = "Избранные"
 
+    def __str__(self):
+        return f"{self.user} Wishlist"
+
 
 class Categories(models.Model):
     name = models.CharField(
@@ -153,6 +171,9 @@ class Categories(models.Model):
         verbose_name = "Категория"
         verbose_name_plural = "Категории"
 
+    def __str__(self):
+        return self.name
+
 
 class ProductInOrder(models.Model):
     user = models.ForeignKey(
@@ -171,6 +192,13 @@ class ProductInOrder(models.Model):
         verbose_name="Изображение",
     )
     count = models.IntegerField(default=1)
+
+    class Meta:
+        verbose_name = "Товар в заказе"
+        verbose_name_plural = "Товары в заказе"
+
+    def __str__(self):
+        return f"{self.user.name} | {self.product.name} Cart"
 
 
 class Order(models.Model):
@@ -202,3 +230,10 @@ class Order(models.Model):
         max_length=255,
         verbose_name='Перевозчик'
     )
+
+    class Meta:
+        verbose_name = "Заказ"
+        verbose_name_plural = "Заказы"
+
+    def __str__(self):
+        return f"{self.user.name} Order"
