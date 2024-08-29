@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.db.models import F
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import (
     Product, Cart, ProductImage,
     Order, ProductInOrder, Wishlist,
@@ -31,105 +31,109 @@ def img_not_in_shop_or_wishlist(img_id: int, user, model) -> bool:
 
 
 def product_detail(request, pk, img_id):
-    product = Product.objects.get(pk=pk)
-    img = ProductImage.objects.get(pk=img_id)
-    heart = "fa-heart"
-    if request.user.is_authenticated:
-        if img_not_in_shop_or_wishlist(img_id, request.user, Wishlist):
-            heart = "fa-heart-o"
-    form = QuantityForm()
-    if request.method == "POST":
-        if request.user.is_authenticated:
-            if request.POST.get("image"):
-                print("\n" * 10, img.color)
-                return redirect(
-                    "products:product_detail",
-                    product.pk,
-                    request.POST.get("image")
-                )
-            elif request.POST.get("action"):
-                if img_not_in_shop_or_wishlist(img_id, request.user, Cart):
-                    data = {
-                        "user": request.user,
-                        "product": product,
-                        "image": img
-                    }
-                    if product.parameters:
-                        param = request.POST.get("param_value")
-                        data.update(
-                            {
-                                "parameters": product.parameters,
-                                "parameters_value": request.POST.get(
-                                    "param_value"
-                                ),
-                                "count": int(
-                                    int(param) // int(
-                                        product.parameters_value.all()[0].value
-                                    )
-                                ) if param.isdigit() else 1,
-                            }
-                        )
-                    else:
-                        data.update(
-                            {
-                                "count": request.POST.get("qtybutton")
-                            }
-                        )
-                    Cart.objects.create(**data)
-                else:
-                    if product.parameters:
-                        param = request.POST.get("param_value")
-                        if isinstance(param, int):
-                            Cart.objects.filter(
-                                image=img
-                            ).update(
-                                parameters_value=F(
-                                    "parameters_value"
-                                ) + request.POST.get("param_value")
-                            )
-                        else:
-                            Cart.objects.filter(
-                                image=img
-                            ).update(
-                                count=F("count") + 1
-                            )
-                    else:
-                        Cart.objects.filter(
-                            image=img
-                        ).update(
-                            count=F("count") + request.POST.get("qtybutton")
-                        )
+    product = get_object_or_404(Product, pk=pk)
+    img = get_object_or_404(ProductImage, pk=img_id)
+    heart = determine_heart_icon(request.user, img_id)
 
-            elif request.POST.get("add_wishlist"):
-                if request.user.is_authenticated:
-                    if img_not_in_shop_or_wishlist(
-                            img_id,
-                            request.user,
-                            Wishlist
-                    ):
-                        Wishlist.objects.create(
-                            user=request.user,
-                            product=product,
-                            image=img,
-                        )
-                    else:
-                        Wishlist.objects.filter(
-                            user=request.user,
-                            image=img
-                        ).delete()
-        else:
-            return redirect("users:signin")
+    form = QuantityForm()
+
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            return redirect(
+                "users:signin"
+            )
+
+        if request.POST.get("image"):
+            return redirect(
+                "products:product_detail",
+                product.pk,
+                request.POST.get("image")
+            )
+
+        if request.POST.get("action"):
+            handle_cart_action(request, product, img)
+
+        if request.POST.get("add_wishlist"):
+            handle_wishlist_action(request, product, img)
+
     return render(
         request,
         "products/product_detail.html",
         {
             "product": product,
-            "image_large": ProductImage.objects.get(pk=img_id).image.url,
+            "image_large": img.image.url,
             "form": form,
             "heart": heart,
             "image": img,
         }
     )
+
+
+def determine_heart_icon(user, img_id):
+    return (
+        "fa-heart-o"
+        if user.is_authenticated and img_not_in_shop_or_wishlist(
+            img_id,
+            user,
+            Wishlist
+        ) else "fa-heart"
+    )
+
+
+def handle_cart_action(request, product, img):
+    if img_not_in_shop_or_wishlist(img.id, request.user, Cart):
+        create_cart_item(request, product, img)
+    else:
+        update_cart_item(request, img, product)
+
+
+def create_cart_item(request, product, img):
+    data = {
+        "user": request.user,
+        "product": product,
+        "image": img,
+        "count": get_cart_count(request, product)
+    }
+    Cart.objects.create(**data)
+
+
+def update_cart_item(request, img, product):
+    if product.parameters:
+        param = request.POST.get("param_value")
+        if isinstance(param, int):
+            Cart.objects.filter(
+                image=img
+            ).update(
+                parameters_value=F("parameters_value") + param
+            )
+        else:
+            Cart.objects.filter(
+                image=img
+            ).update(
+                count=F("count") + 1
+            )
+    else:
+        Cart.objects.filter(
+            image=img
+        ).update(
+            count=F("count") + request.POST.get("qtybutton")
+        )
+
+
+def get_cart_count(request, product):
+    if product.parameters:
+        param = request.POST.get("param_value")
+        return int(param) // int(
+            product.parameters_value.all()[0].value
+        ) if param.isdigit() else 1
+    return request.POST.get("qtybutton")
+
+
+def handle_wishlist_action(request, product, img):
+    if img_not_in_shop_or_wishlist(img.id, request.user, Wishlist):
+        Wishlist.objects.create(user=request.user, product=product, image=img)
+    else:
+        Wishlist.objects.filter(user=request.user, image=img).delete()
 
 
 @login_required

@@ -102,13 +102,8 @@
                             <h4><a href="#">{{ cart_elem.product.name }}{% if cart_elem.image.color %}
                                                 ({{ cart_elem.image.color }})
                                                 {% endif %}</a></h4>
-                            {% if cart_elem.parameters %}
-{#                                {% with parameters_value=cart_elem.product.parameters_value.all.0 %}#}
-{#                            <span>{{ parameters_value|div:2 }}x{{ parameters_value }} * {{ cart_elem.product.price }}	₽</span>#}
-{#                            {% endwith %}#}
-{#                            {% else %}#}
                             <span>{{ cart_elem.count }} * {{ cart_elem.product.price }}	₽</span>
-                            {% endif %}
+
                         </div>
                         <div class="cart-delete">
                             <form method="POST">
