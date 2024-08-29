@@ -1,10 +1,22 @@
-from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.contrib.sessions.models import Session
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
+
+
+class ParameterValue(models.Model):
+    value = models.CharField(
+        max_length=100,
+        verbose_name="Значение параметра"
+    )
+
+    class Meta:
+        verbose_name = "Значение параметра"
+        verbose_name_plural = "Значения параметра"
+
+    def __str__(self):
+        return self.value
 
 
 class Characteristic(models.Model):
@@ -47,6 +59,22 @@ class Product(models.Model):
     description = models.TextField(
         verbose_name="Описание"
     )
+    parameters = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name="Параметр",
+    )
+    parameters_value = models.ManyToManyField(
+        ParameterValue,
+        blank=True,
+        related_name="products",
+        verbose_name="Параметры"
+    )
+    measurement_unit = models.CharField(
+        max_length=100,
+        verbose_name="Единицы измерения",
+        blank=True,
+    )
 
     class Meta:
         verbose_name = "Товар"
@@ -54,7 +82,12 @@ class Product(models.Model):
 
     @property
     def price(self):
-        return self.price_not_discount - (self.price_not_discount * (self.discount / 100))
+        return (self.price_not_discount
+                - (self.price_not_discount
+                   * (self.discount
+                      / 100
+                      )
+                   ))
 
     def __str__(self):
         return self.name
@@ -64,6 +97,11 @@ class ProductImage(models.Model):
     image = models.ImageField(
         upload_to="products_photo/",
         verbose_name="Изображение"
+    )
+    color = models.CharField(
+        max_length=100,
+        verbose_name="Цвет",
+        blank=True,
     )
     product = models.ForeignKey(
         Product,
@@ -127,11 +165,33 @@ class Cart(models.Model):
         verbose_name="Изображение",
         related_name="image_product"
     )
-    count = models.IntegerField(default=1)
+    count = models.IntegerField(
+        default=1,
+        blank=True
+    )
+    parameters = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name="Параметр",
+    )
+    parameters_value = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name="Значение параметра",
+    )
+    measurement_unit = models.CharField(
+        max_length=100,
+        verbose_name="Единицы измерения",
+        blank=True,
+    )
 
     class Meta:
         verbose_name = "Корзина"
         verbose_name_plural = "Корзины"
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.user} Cart"
@@ -202,6 +262,21 @@ class ProductInOrder(models.Model):
         verbose_name="Изображение",
     )
     count = models.IntegerField(default=1)
+    parameters = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name="Параметр",
+    )
+    parameters_value = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name="Значение параметра",
+    )
+    measurement_unit = models.CharField(
+        max_length=100,
+        verbose_name="Единицы измерения",
+        blank=True,
+    )
 
     class Meta:
         verbose_name = "Товар в заказе"

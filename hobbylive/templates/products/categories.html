@@ -4,7 +4,13 @@
     Категории
 {% endblock %}
 {% block content %}
-
+<style>
+    .image_prod {
+    height: 400px;
+    width: 100%;
+    object-fit: cover;
+}
+    </style>
         <div class="shop-area pt-70 pb-100">
             <div class="container">
 
@@ -15,7 +21,7 @@
                                 <div class="product-wrap mb-50">
                                     <div class="product-img default-overlay mb-25">
                                         <a href="{% url "products:products_list" category.id %}">
-                                            <img class="default-img" src="{{ category.image.url }}" alt="">
+                                            <img class="default-img image_prod" src="{{ category.image.url }}" alt="">
                                         </a>
                                     </div>
                                     <div class="product-content-2 title-font-width-400 text-center">

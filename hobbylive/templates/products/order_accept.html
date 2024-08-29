@@ -1,14 +1,13 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}
-    Заказ {{ order.pk }}
+    Оформление заказа
 {% endblock %}
 {% block content %}
     <div class="cart-main-area pt-90 pb-100">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12 col-12">
-                    <form action="#">
                         <div class="row">
                             <div class="col-lg-8">
                                 <div class="table-content table-responsive cart-table-content">
@@ -24,7 +23,7 @@
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        {% for product in order.products.all %}
+                                        {% for product in products.all %}
                                             <tr>
                                                 <td class="product-remove">
                                                 </td>
@@ -32,9 +31,9 @@
                                                     <a href="#"><img src="{{ product.image.image.url }}"
                                                                      style="width: 60px;" alt=""></a>
                                                 </td>
-                                                <td class="product-name"><a href="#">{{ product.product.name }}{% if product.image.color %}
+                                                <td class="product-name"><a href="#">{{ product.product.name }} {% if product.image.color %}
                                                 ({{ product.image.color }})
-                                                {% endif %} </a></td>
+                                                {% endif %}</a></td>
                                                 <td class="product-price"><span
                                                         class="amount">₽{{ product.product.price }}</span></td>
                                                 <td class="product-price"><span
@@ -51,14 +50,17 @@
 
                                 </div>
                             </div>
+
+
                             <div class="col-lg-4">
                                 <div class="grand-total-wrap">
-                                    <h4>Заказ №{{ order.pk }} | {{ order.status }}</h4>
+                                    <h4>Оформление заказа</h4>
                                     <div class="grand-total-content">
-                                        <ul><li>
-                                                Перевозчик <span>{{ order.carrier }}</span>
+                                        <ul>
+                                            <li>
+                                                Перевозчик <span>{{ data.carrier }}</span>
                                                 <br>
-                                                Город получения <span>{{ order.address }}</span>
+                                                Город получения <span>{{ data.address }}</span>
                                                 <br>
                                             </li>
                                             <li>
@@ -66,27 +68,24 @@
                                                 <br>
                                                 Стоиость товаров <span> ₽{{ total_price }}</span>
                                             </li>
-                                            <li>Итого <span> ₽{{ order.total_price }}</span></li>
-                                            <li>
-                                                {% if order.status == "Создан" %}
-                                                    <form method="POST" action="{% url "products:order_detail" order.pk %}">
-                                                        {% csrf_token %}
-                                                        <div class="login-register-btn">
-                                                            <button type="submit" name="delete" value="ok">Отменить заказ</button>
-                                                        </div>
-                                                    </form>
-                                                {% endif %}
-                                            </li>
+                                            <li>Итого <span> ₽{{ total_price|add:"+0" }}</span></li>
                                         </ul>
+                                    </div>
+                                    <div class="grand-btn">
+                                        <form method="post" action="{% url "products:order_accept" %}">
+                                            {% csrf_token %}
+                                            <div class="login-register-btn">
+                                                <button type="submit" name="accept" value="ok">Оформить заказ</button>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
+
                         </div>
-                    </form>
+
                 </div>
             </div>
         </div>
     </div>
-    <!-- cart end -->
-
 {% endblock %}

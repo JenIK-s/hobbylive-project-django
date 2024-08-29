@@ -32,6 +32,9 @@
                             <a href="#dashboad" class="active" data-bs-toggle="tab">
                                 Информация</a>
                             <a href="#orders" data-bs-toggle="tab">Заказы</a>
+                            {% if user.is_staff %}
+                                <a href="#orders_staff" data-bs-toggle="tab">Заказы пользователей</a>
+                            {% endif %}
                             <a href="#account-info" data-bs-toggle="tab">Детали аккаунта</a>
                             <a href={% url "users:logout" %}>Выход</a>
                         </div>
@@ -58,10 +61,10 @@
                                             <table class="table table-bordered">
                                                 <thead class="thead-light">
                                                 <tr>
-                                                    <th>Order</th>
-                                                    <th>Date</th>
-                                                    <th>Status</th>
-                                                    <th>Total</th>
+                                                    <th>№</th>
+                                                    <th>Дата</th>
+                                                    <th>Статус</th>
+                                                    <th>Итого</th>
                                                     <th></th>
                                                 </tr>
                                                 </thead>
@@ -86,7 +89,42 @@
                                 </div>
                             </div>
                             <!-- Single Tab Content End -->
-
+                            <div class="tab-pane fade" id="orders_staff" role="tabpanel">
+                                <div class="myaccount-content">
+                                    <div class="myaccount-table table-responsive text-center">
+                                        {% if orders %}
+                                            <table class="table table-bordered">
+                                                <thead class="thead-light">
+                                                <tr>
+                                                    <th>№</th>
+                                                    <th>Пользователь</th>
+                                                    <th>Дата</th>
+                                                    <th>Статус</th>
+                                                    <th>Итого</th>
+                                                    <th></th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for order in orders_staff %}
+                                                    <tr>
+                                                        <td>{{ order.pk }}</td>
+                                                        <td>{{ order.user.username }}</td>
+                                                        <td>{{ order.date }}</td>
+                                                        <td>{{ order.status }}</td>
+                                                        <td>₽{{ order.total_price }}</td>
+                                                        <td>
+                                                            <a href="{% url "products:order_detail" order.pk %}">Перейти</a>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        {% else %}
+                                            У Вас не было заказов
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
                             <!-- Single Tab Content Start -->
                             <div class="tab-pane fade" id="account-info" role="tabpanel">
                                 <div class="myaccount-content">

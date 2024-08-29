@@ -3,7 +3,13 @@ from .models import (
     Product, ProductImage, ProductCharacteristic,
     Cart, Categories, Wishlist,
     Characteristic, Order, ProductInOrder,
+    ParameterValue
 )
+
+
+@admin.register(ParameterValue)
+class ParameterValueAdmin(admin.ModelAdmin):
+    list_display = ("value",)
 
 
 class ProductImageInline(admin.TabularInline):
@@ -25,6 +31,7 @@ class ProductAdmin(admin.ModelAdmin):
         "price"
     )
     list_filter = ("name",)
+    filter_horizontal = ("parameters_value",)
 
 
 @admin.register(ProductCharacteristic)

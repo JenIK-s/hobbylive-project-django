@@ -1,5 +1,3 @@
-from django.shortcuts import redirect
-
 from ..models import Cart
 
 
@@ -14,5 +12,9 @@ def cart_handler(request):
         for elem in queryset:
             total_price += elem.product.price * elem.count
 
-        return {"count": len(queryset), "queryset": queryset, "total_price": total_price}
+        return {
+            "count": len(queryset),
+            "queryset": queryset,
+            "total_price": total_price
+        }
     return []

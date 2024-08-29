@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.db.models import F
 from django.shortcuts import render, redirect
 from .models import (
@@ -8,7 +9,6 @@ from .models import (
     Categories
 )
 from .forms import QuantityForm, OrderForm, AccountDetailForm
-from django.contrib import messages
 
 
 def index(request):
@@ -17,7 +17,11 @@ def index(request):
 
 def products_list(request, categories_id):
     queryset = Categories.objects.get(id=categories_id).product.all()
-    return render(request, "products/products_list.html", {"products": queryset})
+    return render(
+        request,
+        "products/products_list.html",
+        {"products": queryset}
+    )
 
 
 def img_not_in_shop_or_wishlist(img_id: int, user, model) -> bool:
@@ -35,33 +39,86 @@ def product_detail(request, pk, img_id):
             heart = "fa-heart-o"
     form = QuantityForm()
     if request.method == "POST":
-        if request.POST.get("image"):
-            return redirect("products:product_detail", product.pk, request.POST.get("image"))
-        elif request.POST.get("action"):
-            if request.user.is_authenticated:
+        if request.user.is_authenticated:
+            if request.POST.get("image"):
+                print("\n" * 10, img.color)
+                return redirect(
+                    "products:product_detail",
+                    product.pk,
+                    request.POST.get("image")
+                )
+            elif request.POST.get("action"):
                 if img_not_in_shop_or_wishlist(img_id, request.user, Cart):
-                    Cart.objects.create(
-                        user=request.user,
-                        product=product,
-                        image=img,
-                        count=request.POST.get("qtybutton")
-                    )
+                    data = {
+                        "user": request.user,
+                        "product": product,
+                        "image": img
+                    }
+                    if product.parameters:
+                        param = request.POST.get("param_value")
+                        data.update(
+                            {
+                                "parameters": product.parameters,
+                                "parameters_value": request.POST.get(
+                                    "param_value"
+                                ),
+                                "count": int(
+                                    int(param) // int(
+                                        product.parameters_value.all()[0].value
+                                    )
+                                ) if param.isdigit() else 1,
+                            }
+                        )
+                    else:
+                        data.update(
+                            {
+                                "count": request.POST.get("qtybutton")
+                            }
+                        )
+                    Cart.objects.create(**data)
                 else:
-                    Cart.objects.filter(image=img).update(count=F("count") + request.POST.get("qtybutton"))
-            else:
-                return redirect("users:signin")
-        elif request.POST.get("add_wishlist"):
-            if request.user.is_authenticated:
-                if img_not_in_shop_or_wishlist(img_id, request.user, Wishlist):
-                    Wishlist.objects.create(
-                        user=request.user,
-                        product=product,
-                        image=img,
-                    )
-                else:
-                    Wishlist.objects.filter(user=request.user, image=img).delete()
-            else:
-                return redirect("users:signin")
+                    if product.parameters:
+                        param = request.POST.get("param_value")
+                        if isinstance(param, int):
+                            Cart.objects.filter(
+                                image=img
+                            ).update(
+                                parameters_value=F(
+                                    "parameters_value"
+                                ) + request.POST.get("param_value")
+                            )
+                        else:
+                            Cart.objects.filter(
+                                image=img
+                            ).update(
+                                count=F("count") + 1
+                            )
+                    else:
+                        Cart.objects.filter(
+                            image=img
+                        ).update(
+                            count=F("count") + request.POST.get("qtybutton")
+                        )
+
+            elif request.POST.get("add_wishlist"):
+                if request.user.is_authenticated:
+                    if img_not_in_shop_or_wishlist(
+                            img_id,
+                            request.user,
+                            Wishlist
+                    ):
+                        Wishlist.objects.create(
+                            user=request.user,
+                            product=product,
+                            image=img,
+                        )
+                    else:
+                        Wishlist.objects.filter(
+                            user=request.user,
+                            image=img
+                        ).delete()
+        else:
+            return redirect("users:signin")
     return render(
         request,
         "products/product_detail.html",
@@ -70,6 +127,7 @@ def product_detail(request, pk, img_id):
             "image_large": ProductImage.objects.get(pk=img_id).image.url,
             "form": form,
             "heart": heart,
+            "image": img,
         }
     )
 
@@ -95,10 +153,18 @@ def profile(request):
             }
             User = get_user_model()
             User.objects.filter(id=request.user.id).update(**data)
-    return render(request, "products/profile.html", {"orders": orders, "form": form})
+    return render(
+        request,
+        "products/profile.html",
+        {
+            "orders": orders,
+            "form": form,
+            "orders_staff": Order.objects.all()
+        }
+    )
 
 
-def create_order(user, address="г. Москва, ул. Артюхиной д. 4", carrier="Самовывоз"):
+def create_order(user, address, carrier):
     queryset = Cart.objects.filter(user=user)
     total_price = 0
     for elem in queryset:
@@ -109,21 +175,36 @@ def create_order(user, address="г. Москва, ул. Артюхиной д. 4
         total_price=total_price,
         carrier=carrier
     )
-    for elem in queryset:
-        product = ProductInOrder.objects.create(
-            user=user,
-            product=elem.product,
-            image=elem.image,
-            count=elem.count
-        )
-        user_order.products.add(product)
-    user_order.save()
-    queryset.delete()
+    try:
+        for elem in queryset:
+            data = {
+                "user": user,
+                "product": elem.product,
+                "image": elem.image,
+                "count": elem.count
+            }
+            if elem.product.parameters:
+                data.update(
+                    {
+                        "parameters": elem.parameters,
+                        "parameters_value": elem.parameter_value,
+                    }
+                )
+            product = ProductInOrder.objects.create(**data)
+            user_order.products.add(product)
+        user_order.save()
+        queryset.delete()
+    except:
+        user_order.delete()
+        raise ValidationError("Заказ должен содержать хотя бы один товар")
 
 
 @login_required
 def order(request):
-    data = {"first_name": request.user.first_name, "last_name": request.user.last_name}
+    data = {
+        "first_name": request.user.first_name,
+        "last_name": request.user.last_name
+    }
     form = OrderForm(data)
     if request.method == "POST":
         print("POST")
@@ -131,16 +212,48 @@ def order(request):
             print("to_order")
             form = OrderForm(request.POST)
             if form.is_valid():
-                create_order(request.user, request.POST.get("address"), request.POST.get("carrier"))
-                messages.success(request, "Заказ успешно оформлен")
+                data = {
+                    "address": request.POST.get("address"),
+                    "carrier": request.POST.get("carrier")
+                }
+                request.session['data'] = data
+                return redirect("products:order_accept")
         elif request.POST.get("to_order_pickup"):
-            print("to_order_pickup")
-            create_order(request.user)
-            messages.success(request, "Заказ успешно оформлен")
+            data = {
+                "address": "г. Москва, ул. Артюхиной д. 4",
+                "carrier": "Самовывоз"
+            }
+            request.session['data'] = data
+            return redirect("products:order_accept")
 
-        # else:
-        #     messages.error(request, "Заказ не был оформлен")
-    return render(request, "products/order.html", {"form": form})
+    return render(
+        request,
+        "products/order.html",
+        {
+            "form": form
+        }
+    )
+
+
+@login_required
+def order_accept(request):
+    data = request.session.get("data")
+    queryset = Cart.objects.filter(user=request.user)
+    total_price = 0
+    for elem in queryset:
+        total_price += elem.product.price * elem.count
+    if request.method == "POST":
+        create_order(request.user, data.get("address"), data.get("carrier"))
+        return redirect("products:profile")
+    return render(
+        request,
+        "products/order_accept.html",
+        {
+            "data": data,
+            "products": queryset,
+            "total_price": total_price
+        }
+    )
 
 
 @login_required
@@ -149,7 +262,13 @@ def order_detail(request, pk):
     if request.method == "POST":
         user_order.delete()
         return redirect("products:profile")
-    return render(request, "products/order_detail.html", {"order": user_order[0]})
+    return render(
+        request,
+        "products/order_detail.html",
+        {
+            "order": user_order[0]
+        }
+    )
 
 
 @login_required
@@ -159,7 +278,11 @@ def wishlist(request):
         if request.POST.get("action"):
             pk = request.POST.get("action")
             wishlist_elem = Wishlist.objects.filter(pk=pk)
-            if img_not_in_shop_or_wishlist(wishlist_elem[0].image.id, request.user, Cart):
+            if img_not_in_shop_or_wishlist(
+                    wishlist_elem[0].image.id,
+                    request.user,
+                    Cart
+            ):
                 Cart.objects.create(
                     user=request.user,
                     product=wishlist_elem[0].product,
@@ -167,13 +290,27 @@ def wishlist(request):
                     count=1
                 )
             else:
-                Cart.objects.filter(image=wishlist_elem[0].image).update(count=F("count") + 1)
+                Cart.objects.filter(
+                    image=wishlist_elem[0].image
+                ).update(count=F("count") + 1)
         else:
             pk = request.POST.get("pk_w")
         Wishlist.objects.filter(pk=pk).delete()
-    return render(request, "products/wishlist.html", {"wishlist": user_wishlist})
+    return render(
+        request,
+        "products/wishlist.html",
+        {
+            "wishlist": user_wishlist
+        }
+    )
 
 
 def categories(request):
     queryset = Categories.objects.all()
-    return render(request, "products/categories.html", {"categories": queryset})
+    return render(
+        request,
+        "products/categories.html",
+        {
+            "categories": queryset
+        }
+    )

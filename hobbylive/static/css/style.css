@@ -32278,3 +32278,50 @@ h3.cart-page-title {
     width: 100px;
     text-align: center;
 }
+
+.desc_product {
+    text-align: left;
+    overflow: visible;
+    font-family: "TildaSansLight", serif;
+    font-size: 18px;
+    white-space: pre-wrap; /* Since CSS 2.1 */
+    white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    word-wrap: break-word; /* Internet Explorer 5.5+ */
+}
+
+.form-group {
+    display: flex;
+    align-items: center; /* Центрирование по вертикали */
+}
+
+.form-group label {
+    margin-right: 10px; /* Отступ между меткой и полем выбора */
+}
+
+.product-details-action-wrap {
+    display: flex;
+    align-items: center; /* Центрирование по вертикали */
+}
+
+.form-group {
+    margin-right: 15px; /* Отступ между элементами формы */
+}
+
+.in_order_list,
+.product-details-wishlist {
+    margin-left: 10px; /* Отступ между кнопками */
+}
+
+.product-group {
+    overflow: auto; /* или hidden */
+}
+
+.section-products .row {
+    display: flex;
+    justify-content: center; /* Центрирование содержимого */
+}
+
+.section-products .image-column {
+    flex: 0 0 auto; /* Предотвращает растяжение колонок */
+}
