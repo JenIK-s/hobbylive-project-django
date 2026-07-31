@@ -58,12 +58,30 @@ def search(request):
 
 
 def products_list(request, categories_id):
-    category = get_object_or_404(Categories, id=categories_id)
+    category = get_object_or_404(
+        Categories.objects.select_related("parent").prefetch_related("children"),
+        id=categories_id,
+    )
+    children = list(category.children.all())
+    if children:
+        return render(
+            request,
+            "products/products_list.html",
+            {
+                "category": category,
+                "subcategories": children,
+                "products": None,
+            },
+        )
     products = category.product.prefetch_related("images").all()
     return render(
         request,
         "products/products_list.html",
-        {"products": products, "category": category},
+        {
+            "category": category,
+            "subcategories": None,
+            "products": products,
+        },
     )
 
 
@@ -465,5 +483,7 @@ def categories(request):
     return render(
         request,
         "products/categories.html",
-        {"categories": Categories.objects.all()},
+        {
+            "categories": Categories.objects.filter(parent__isnull=True).order_by("name"),
+        },
     )

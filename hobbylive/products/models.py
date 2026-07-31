@@ -225,6 +225,14 @@ class Categories(models.Model):
         max_length=500,
         verbose_name="Наименование",
     )
+    parent = models.ForeignKey(
+        "self",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="children",
+        verbose_name="Родительская категория",
+    )
     product = models.ManyToManyField(
         Product,
         related_name="Categories",
@@ -240,7 +248,16 @@ class Categories(models.Model):
         verbose_name_plural = "Категории"
 
     def __str__(self):
+        if self.parent_id:
+            return f"{self.parent.name} → {self.name}"
         return self.name
+
+    @property
+    def is_root(self):
+        return self.parent_id is None
+
+    def has_children(self):
+        return self.children.exists()
 
 
 class ProductInOrder(models.Model):

@@ -6,15 +6,28 @@
         <div class="crumbs">
             <a href="{% url 'products:index' %}">Главная</a><span>/</span>
             <a href="{% url 'products:categories' %}">Каталог</a><span>/</span>
+            {% if category.parent %}
+                <a href="{% url 'products:products_list' category.parent.id %}">{{ category.parent.name }}</a><span>/</span>
+            {% endif %}
             <span>{{ category.name }}</span>
         </div>
         <h1>{{ category.name }}</h1>
-        <p>Товары в этой категории</p>
+        {% if subcategories %}
+            <p>Выберите подкатегорию</p>
+        {% else %}
+            <p>Товары в этой категории</p>
+        {% endif %}
     </div>
 </div>
 <section class="section">
     <div class="wrap">
-        {% if products %}
+        {% if subcategories %}
+            <div class="grid grid--cats">
+                {% for category in subcategories %}
+                    {% include "includes/category_item.html" %}
+                {% endfor %}
+            </div>
+        {% elif products %}
             <div class="grid">
                 {% for product in products %}
                     {% include "includes/product_item.html" %}

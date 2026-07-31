@@ -54,8 +54,12 @@ class CategoriesAdmin(admin.ModelAdmin):
     list_display = (
         "pk",
         "name",
+        "parent",
     )
-    list_filter = ("name",)
+    list_filter = ("parent",)
+    search_fields = ("name",)
+    autocomplete_fields = ("parent",)
+    filter_horizontal = ("product",)
 
 
 @admin.register(Wishlist)
