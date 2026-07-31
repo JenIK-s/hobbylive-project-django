@@ -17,7 +17,7 @@
                 <button type="button" data-profile-tab="staff">Все заказы</button>
             {% endif %}
             <a href="{% url 'products:wishlist' %}">Избранное</a>
-            <a href="{% url 'users:signout' %}">Выйти</a>
+            <a href="{% url 'users:logout' %}">Выйти</a>
         </nav>
         <div>
             <div class="panel profile-panel is-on" data-profile-panel="orders">
@@ -29,7 +29,7 @@
                                 <span class="order-row__id">№{{ order.pk }}</span>
                                 <span class="order-row__info">
                                     {{ order.date|date:"d.m.Y H:i" }}
-                                    <span class="status">{{ order.status }}</span>
+                                    <span class="status{% if order.status == 'Отменен' %} status--cancel{% endif %}">{{ order.status }}</span>
                                 </span>
                                 <strong>{{ order.total_price }} ₽</strong>
                             </a>
@@ -67,7 +67,7 @@
                             <span class="order-row__id">№{{ order.pk }}</span>
                             <span class="order-row__info">
                                 {{ order.user }} · {{ order.date|date:"d.m.Y" }}
-                                <span class="status">{{ order.status }}</span>
+                                <span class="status{% if order.status == 'Отменен' %} status--cancel{% endif %}">{{ order.status }}</span>
                             </span>
                             <strong>{{ order.total_price }} ₽</strong>
                         </a>
@@ -77,5 +77,23 @@
             {% endif %}
         </div>
     </div>
+
+    {% if recommended_products %}
+    <section class="related profile-reco">
+        <div class="section__head">
+            <div class="section__head-text">
+                <span class="section__kicker">Для вас</span>
+                <h2>Рекомендуем вам</h2>
+                <p>На основе ваших просмотров, поиска и покупок</p>
+            </div>
+            <a href="{% url 'products:categories' %}" class="btn btn--ghost">В каталог</a>
+        </div>
+        <div class="grid">
+            {% for product in recommended_products %}
+                {% include "includes/product_item.html" %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
 </div>
 {% endblock %}

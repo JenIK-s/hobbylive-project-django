@@ -109,6 +109,77 @@
         });
     }
 
+    /* —— Product card SKU swatches —— */
+    $$('[data-product-card]').forEach(function (card) {
+        var image = $('[data-card-image]', card);
+        var media = $('[data-card-media]', card);
+        var body = $('[data-card-body]', card);
+        var label = $('[data-card-variant-label]', card);
+        $$('[data-card-swatch]', card).forEach(function (swatch) {
+            swatch.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $$('[data-card-swatch]', card).forEach(function (s) { s.classList.remove('is-on'); });
+                swatch.classList.add('is-on');
+                if (image) image.src = swatch.getAttribute('data-img');
+                var href = swatch.getAttribute('data-href');
+                if (href) {
+                    if (media) media.setAttribute('href', href);
+                    if (body) body.setAttribute('href', href);
+                }
+                if (label) {
+                    label.textContent = swatch.getAttribute('data-color') || swatch.getAttribute('title') || 'Вариант';
+                }
+            });
+        });
+    });
+
+    /* —— PDP SKU selection —— */
+    function selectPdpVariant(root, btn) {
+        var main = $('[data-pdp-main]', root);
+        var imageId = $('[data-pdp-image-id]', root);
+        var colorLabel = $('[data-pdp-color-label]', root);
+        var href = btn.getAttribute('data-href');
+        var img = btn.getAttribute('data-img');
+        var id = btn.getAttribute('data-img-id');
+        var color = btn.getAttribute('data-color');
+
+        if (main && img) main.src = img;
+        if (imageId && id) imageId.value = id;
+        if (colorLabel) colorLabel.textContent = color || 'вариант';
+
+        $$('[data-pdp-swatch]', root).forEach(function (s) {
+            s.classList.toggle('is-on', s === btn || s.getAttribute('data-img-id') === id);
+        });
+        $$('[data-pdp-thumb]', root).forEach(function (s) {
+            s.classList.toggle('is-on', s.getAttribute('data-img-id') === id);
+        });
+
+        if (href && window.history && window.history.replaceState) {
+            window.history.replaceState(null, '', href);
+        }
+    }
+
+    $$('[data-pdp]').forEach(function (root) {
+        $$('[data-pdp-swatch], [data-pdp-thumb]', root).forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                selectPdpVariant(root, btn);
+            });
+        });
+
+        $$('[data-pdp-params] .sku-pill', root).forEach(function (pill) {
+            pill.addEventListener('click', function () {
+                $$('[data-pdp-params] .sku-pill', root).forEach(function (p) { p.classList.remove('is-on'); });
+                pill.classList.add('is-on');
+                var input = $('input', pill);
+                if (input) input.checked = true;
+                var paramLabel = $('[data-pdp-param-label]', root);
+                if (paramLabel && input) paramLabel.textContent = input.value;
+            });
+        });
+    });
+
     /* —— Search history —— */
     var HISTORY_KEY = 'shop_search_history';
     var HISTORY_MAX = 8;

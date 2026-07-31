@@ -8,7 +8,7 @@
             <span>Заказ №{{ order.pk }}</span>
         </div>
         <h1>Заказ №{{ order.pk }}</h1>
-        <p><span class="status">{{ order.status }}</span> · {{ order.date|date:"d.m.Y H:i" }}</p>
+        <p><span class="status{% if order.status == 'Отменен' %} status--cancel{% endif %}">{{ order.status }}</span> · {{ order.date|date:"d.m.Y H:i" }}</p>
     </div>
 </div>
 <div class="wrap sheet">

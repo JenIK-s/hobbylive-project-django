@@ -3,6 +3,7 @@ from .views import (
     index, products_list, product_detail,
     profile, order, order_detail,
     wishlist, categories, order_accept, search, cart_remove,
+    popular,
 )
 
 app_name = "products"
@@ -47,6 +48,11 @@ urlpatterns = [
         "categories/",
         categories,
         name="categories"
+    ),
+    path(
+        "popular/",
+        popular,
+        name="popular"
     ),
     path(
         "search/",

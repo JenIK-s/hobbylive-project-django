@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Популярные товары{% endblock %}
+{% block content %}
+<div class="mast">
+    <div class="wrap">
+        <div class="crumbs"><a href="{% url 'products:index' %}">Главная</a><span>/</span><span>Популярные</span></div>
+        <h1>Популярные товары</h1>
+        <p>Рейтинг по просмотрам, поиску, корзине и покупкам</p>
+    </div>
+</div>
+<section class="section">
+    <div class="wrap">
+        {% if products %}
+            <div class="grid">
+                {% for product in products %}
+                    {% include "includes/product_item.html" %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty">
+                <h3>Пока нет данных о популярности</h3>
+                <p><a href="{% url 'products:categories' %}">Перейти в каталог</a></p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -290,7 +290,8 @@ class Order(models.Model):
         ("Собирается", "Собирается"),
         ("В пути", "В пути"),
         ("Доставлено", "Доставлено"),
-        ("Получено", "Получено")
+        ("Получено", "Получено"),
+        ("Отменен", "Отменен"),
     )
     products = models.ManyToManyField(
         ProductInOrder,
@@ -326,3 +327,82 @@ class Order(models.Model):
 
     def __str__(self):
         return f"{self.user.username} Order"
+
+
+class ProductPopularity(models.Model):
+    product = models.OneToOneField(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="popularity",
+        verbose_name="Товар",
+    )
+    views = models.PositiveIntegerField(default=0, verbose_name="Просмотры")
+    search_hits = models.PositiveIntegerField(default=0, verbose_name="Попадания в поиск")
+    wishlist_adds = models.PositiveIntegerField(default=0, verbose_name="В избранное")
+    cart_adds = models.PositiveIntegerField(default=0, verbose_name="В корзину")
+    purchases = models.PositiveIntegerField(default=0, verbose_name="Покупки")
+    score = models.PositiveIntegerField(default=0, db_index=True, verbose_name="Рейтинг")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Популярность товара"
+        verbose_name_plural = "Популярность товаров"
+        ordering = ["-score"]
+
+    def recalculate_score(self):
+        self.score = (
+            self.views * 1
+            + self.search_hits * 2
+            + self.wishlist_adds * 3
+            + self.cart_adds * 5
+            + self.purchases * 10
+        )
+        return self.score
+
+    def __str__(self):
+        return f"{self.product.name} · {self.score}"
+
+
+class UserInterest(models.Model):
+    KIND_PRODUCT = "product"
+    KIND_CATEGORY = "category"
+    KIND_QUERY = "query"
+    KIND_CHOICES = (
+        (KIND_PRODUCT, "Товар"),
+        (KIND_CATEGORY, "Категория"),
+        (KIND_QUERY, "Поиск"),
+    )
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="interests",
+        verbose_name="Пользователь",
+    )
+    kind = models.CharField(
+        max_length=20,
+        choices=KIND_CHOICES,
+        verbose_name="Тип",
+    )
+    key = models.CharField(
+        max_length=255,
+        verbose_name="Ключ",
+    )
+    weight = models.FloatField(default=0, verbose_name="Вес")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Интерес пользователя"
+        verbose_name_plural = "Интересы пользователей"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "kind", "key"],
+                name="uniq_user_interest_kind_key",
+            )
+        ]
+        indexes = [
+            models.Index(fields=["user", "kind", "-weight"]),
+        ]
+
+    def __str__(self):
+        return f"{self.user_id} · {self.kind}:{self.key} = {self.weight}"

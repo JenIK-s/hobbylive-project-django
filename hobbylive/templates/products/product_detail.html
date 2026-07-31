@@ -8,26 +8,33 @@
         <span>{{ product.name }}</span>
     </div>
 
-    <div class="pdp">
+    <div class="pdp" data-pdp>
         <div class="pdp__gallery">
             <div class="pdp__main">
-                <img src="{{ image_large }}" alt="{{ product.name }}">
+                <img src="{{ image_large }}" alt="{{ product.name }}" data-pdp-main>
             </div>
             {% if product.images.all|length > 1 %}
-            <form class="thumbs" method="post">
-                {% csrf_token %}
-                {% for images in product.images.all %}
-                    <button type="submit" name="image" value="{{ images.pk }}" class="{% if images.pk == image.pk %}is-on{% endif %}" title="{{ images.color|default:product.name }}">
-                        <img src="{{ images.image.url }}" alt="">
+            <div class="thumbs" data-pdp-thumbs>
+                {% for img in product.images.all %}
+                    <button
+                        type="button"
+                        class="thumb{% if img.pk == image.pk %} is-on{% endif %}"
+                        data-pdp-thumb
+                        data-img-id="{{ img.pk }}"
+                        data-img="{{ img.image.url }}"
+                        data-color="{{ img.color }}"
+                        data-href="{% url 'products:product_detail' product.pk img.pk %}"
+                        title="{{ img.color|default:product.name }}"
+                    >
+                        <img src="{{ img.image.url }}" alt="">
                     </button>
                 {% endfor %}
-            </form>
+            </div>
             {% endif %}
         </div>
 
         <div class="pdp__panel">
             <h1>{{ product.name }}</h1>
-            {% if image.color %}<p class="muted" style="margin-top:-0.35rem;">Вариант: {{ image.color }}</p>{% endif %}
 
             <div class="price-box">
                 {% if product.discount > 0 %}
@@ -52,29 +59,72 @@
                 </ul>
             {% endif %}
 
-            <form class="buy" method="post">
+            <form class="buy-form" method="post" data-pdp-form>
                 {% csrf_token %}
-                {% if product.parameters %}
-                    <div class="param">
-                        <label for="param_value">{{ product.parameters }}</label>
-                        <select name="param_value" id="param_value">
-                            {% for value in product.parameters_value.all %}
-                                <option value="{{ value }}">{{ value }}</option>
-                            {% endfor %}
-                        </select>
-                        <span class="muted">{{ product.measurement_unit }}</span>
+                <input type="hidden" name="selected_image" value="{{ image.pk }}" data-pdp-image-id>
+
+                {% if product.images.all|length > 1 %}
+                <div class="sku-block">
+                    <div class="sku-block__label">
+                        Вариант:
+                        <strong data-pdp-color-label>{% if image.color %}{{ image.color }}{% else %}выбран{% endif %}</strong>
                     </div>
-                {% else %}
+                    <div class="sku-swatches">
+                        {% for img in product.images.all %}
+                            <button
+                                type="button"
+                                class="sku-swatch sku-swatch--lg{% if img.pk == image.pk %} is-on{% endif %}"
+                                data-pdp-swatch
+                                data-img-id="{{ img.pk }}"
+                                data-img="{{ img.image.url }}"
+                                data-color="{{ img.color }}"
+                                data-href="{% url 'products:product_detail' product.pk img.pk %}"
+                                title="{{ img.color|default:'Вариант' }}"
+                            >
+                                <img src="{{ img.image.url }}" alt="">
+                            </button>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% elif image.color %}
+                <div class="sku-block">
+                    <div class="sku-block__label">Вариант: <strong>{{ image.color }}</strong></div>
+                </div>
+                {% endif %}
+
+                {% if product.parameters and product.parameters_value.all %}
+                <div class="sku-block">
+                    <div class="sku-block__label">
+                        {{ product.parameters }}:
+                        <strong data-pdp-param-label>{{ product.parameters_value.first }}</strong>
+                        {% if product.measurement_unit %}<span class="muted">{{ product.measurement_unit }}</span>{% endif %}
+                    </div>
+                    <div class="sku-pills" data-pdp-params>
+                        {% for value in product.parameters_value.all %}
+                            <label class="sku-pill{% if forloop.first %} is-on{% endif %}">
+                                <input type="radio" name="param_value" value="{{ value }}" {% if forloop.first %}checked{% endif %} hidden>
+                                <span>{{ value }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="sku-block">
+                    <div class="sku-block__label">Количество</div>
                     <div class="qty">
                         <button type="button" id="decrement" aria-label="Меньше">−</button>
                         {{ form.qtybutton }}
                         <button type="button" id="increment" aria-label="Больше">+</button>
                     </div>
-                {% endif %}
-                <button class="btn btn--lg" type="submit" name="action" value="ok">В корзину</button>
-                <button class="btn btn--ghost" type="submit" name="add_wishlist" value="ok">
-                    {% if heart == 'fa-heart' %}В избранном{% else %}В избранное{% endif %}
-                </button>
+                </div>
+
+                <div class="buy-actions">
+                    <button class="btn btn--lg" type="submit" name="action" value="ok">В корзину</button>
+                    <button class="btn btn--ghost" type="submit" name="add_wishlist" value="ok">
+                        {% if heart == 'fa-heart' %}В избранном{% else %}В избранное{% endif %}
+                    </button>
+                </div>
             </form>
 
             <ul class="pdp-assures">
@@ -84,5 +134,23 @@
             </ul>
         </div>
     </div>
+
+    {% if related_products %}
+    <section class="related">
+        <div class="section__head">
+            <div class="section__head-text">
+                <span class="section__kicker">Похожие</span>
+                <h2>Смотрите также</h2>
+                <p>Товары из той же категории</p>
+            </div>
+            <a href="{% url 'products:popular' %}" class="btn btn--ghost">Популярные</a>
+        </div>
+        <div class="grid">
+            {% for product in related_products %}
+                {% include "includes/product_item.html" %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
 </div>
 {% endblock %}

@@ -1,22 +1,49 @@
 {% if product.images.first %}
-<a href="{% url 'products:product_detail' product.pk product.images.first.pk %}" class="card">
-    <div class="card__media">
-        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" loading="lazy">
+{% with images=product.images.all first=product.images.first %}
+<article class="card" data-product-card>
+    <a href="{% url 'products:product_detail' product.pk first.pk %}" class="card__media" data-card-media>
+        <img src="{{ first.image.url }}" alt="{{ product.name }}" loading="lazy" data-card-image>
         {% if product.discount > 0 %}
             <span class="card__sale">−{{ product.discount }}%</span>
         {% endif %}
+    </a>
+
+    {% if images|length > 1 %}
+    <div class="card__skus" data-card-skus>
+        {% for img in images %}
+            <button
+                type="button"
+                class="sku-swatch{% if forloop.first %} is-on{% endif %}"
+                data-card-swatch
+                data-img="{{ img.image.url }}"
+                data-href="{% url 'products:product_detail' product.pk img.pk %}"
+                data-color="{{ img.color }}"
+                title="{{ img.color|default:'Вариант' }}"
+                aria-label="{{ img.color|default:'Вариант' }}"
+            >
+                <img src="{{ img.image.url }}" alt="">
+            </button>
+        {% endfor %}
     </div>
-    <div class="card__body">
+    {% endif %}
+
+    <a href="{% url 'products:product_detail' product.pk first.pk %}" class="card__body" data-card-body>
         <h3 class="card__title" title="{{ product.name }}">{{ product.name }}</h3>
+        {% if images|length > 1 %}
+            <p class="card__variant" data-card-variant-label>
+                {% if first.color %}{{ first.color }}{% else %}Вариант 1{% endif %}
+            </p>
+        {% endif %}
         <div class="card__price">
             {% if product.discount > 0 %}
                 <span class="card__old">{{ product.price_not_discount }} ₽</span>
             {% endif %}
             <span>{{ product.price }} ₽</span>
         </div>
-        <span class="card__cta">Смотреть</span>
-    </div>
-</a>
+        <span class="card__cta">Выбрать</span>
+    </a>
+</article>
+{% endwith %}
 {% else %}
 <div class="card">
     <div class="card__media"><div class="card__ph">Нет фото</div></div>

@@ -3,7 +3,7 @@ from .models import (
     Product, ProductImage, ProductCharacteristic,
     Cart, Categories, Wishlist,
     Characteristic, Order, ProductInOrder,
-    ParameterValue
+    ParameterValue, ProductPopularity, UserInterest,
 )
 
 
@@ -86,3 +86,28 @@ class ProductInOrderAdmin(admin.ModelAdmin):
         "pk",
         "product"
     )
+
+
+@admin.register(ProductPopularity)
+class ProductPopularityAdmin(admin.ModelAdmin):
+    list_display = (
+        "product",
+        "score",
+        "views",
+        "search_hits",
+        "wishlist_adds",
+        "cart_adds",
+        "purchases",
+        "updated_at",
+    )
+    list_filter = ("updated_at",)
+    search_fields = ("product__name",)
+    ordering = ("-score",)
+
+
+@admin.register(UserInterest)
+class UserInterestAdmin(admin.ModelAdmin):
+    list_display = ("user", "kind", "key", "weight", "updated_at")
+    list_filter = ("kind", "updated_at")
+    search_fields = ("user__username", "key")
+    ordering = ("-weight",)

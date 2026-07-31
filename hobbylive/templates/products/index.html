@@ -14,7 +14,7 @@
         <p>Каталог, быстрый заказ, доставка по России и самовывоз в Москве.</p>
         <div class="hero__actions">
             <a href="{% url 'products:categories' %}" class="btn btn--lg">Перейти в каталог</a>
-            <a href="https://t.me/hobbylivemsk" target="_blank" rel="noopener" class="btn btn--ghost btn--lg">Telegram</a>
+            <a href="{% url 'products:popular' %}" class="btn btn--ghost btn--lg">Популярные</a>
         </div>
     </div>
 </section>
@@ -36,39 +36,19 @@
     </div>
 </div>
 
-{% if categories_preview %}
-<section class="section">
+{% if popular_products %}
+<section class="section section--soft" id="popular">
     <div class="wrap">
         <div class="section__head">
             <div class="section__head-text">
-                <span class="section__kicker">Каталог</span>
-                <h2>Категории</h2>
-                <p>Выберите раздел и найдите нужные товары</p>
-            </div>
-            <a href="{% url 'products:categories' %}" class="btn btn--ghost">Все категории</a>
-        </div>
-        <div class="grid grid--cats">
-            {% for category in categories_preview %}
-                {% include "includes/category_item.html" %}
-            {% endfor %}
-        </div>
-    </div>
-</section>
-{% endif %}
-
-{% if featured_products %}
-<section class="section section--soft">
-    <div class="wrap">
-        <div class="section__head">
-            <div class="section__head-text">
-                <span class="section__kicker">Подборка</span>
+                <span class="section__kicker">Хиты</span>
                 <h2>Популярные товары</h2>
-                <p>Актуальные позиции из каталога</p>
+                <p>То, что чаще смотрят и покупают</p>
             </div>
-            <a href="{% url 'products:categories' %}" class="btn">Смотреть каталог</a>
+            <a href="{% url 'products:popular' %}" class="btn">Все популярные</a>
         </div>
         <div class="grid">
-            {% for product in featured_products %}
+            {% for product in popular_products %}
                 {% include "includes/product_item.html" %}
             {% endfor %}
         </div>

@@ -11,20 +11,34 @@ from .models import (
     Categories
 )
 from .forms import QuantityForm, OrderForm, AccountDetailForm
+from .recommendations import (
+    get_personalized_products,
+    get_popular_products,
+    get_related_products,
+    track_cart_add,
+    track_product_view,
+    track_purchase,
+    track_search,
+    track_wishlist_add,
+)
 
 
 def index(request):
-    featured = Product.objects.filter(discount__gt=0).prefetch_related("images")[:8]
-    if not featured.exists():
-        featured = Product.objects.prefetch_related("images").all()[:8]
-    categories_preview = Categories.objects.all()[:4]
     return render(
         request,
         "products/index.html",
         {
-            "featured_products": featured,
-            "categories_preview": categories_preview,
+            "popular_products": get_popular_products(limit=8),
         },
+    )
+
+
+def popular(request):
+    products = get_popular_products(limit=24)
+    return render(
+        request,
+        "products/popular.html",
+        {"products": products},
     )
 
 
@@ -34,7 +48,8 @@ def search(request):
     if query:
         products = Product.objects.filter(
             Q(name__icontains=query) | Q(description__icontains=query)
-        ).prefetch_related("images")
+        ).prefetch_related("images", "Categories")
+        track_search(request.user, query, list(products[:12]))
     return render(
         request,
         "products/search.html",
@@ -65,12 +80,9 @@ def product_detail(request, pk, img_id):
         if not request.user.is_authenticated:
             return redirect("users:signin")
 
-        if request.POST.get("image"):
-            return redirect(
-                "products:product_detail",
-                product.pk,
-                request.POST.get("image"),
-            )
+        selected = request.POST.get("selected_image") or request.POST.get("image")
+        if selected:
+            img = get_object_or_404(ProductImage, pk=selected, product=product)
 
         if request.POST.get("action"):
             handle_cart_action(request, product, img)
@@ -79,7 +91,11 @@ def product_detail(request, pk, img_id):
         if request.POST.get("add_wishlist"):
             handle_wishlist_action(request, product, img)
 
-    heart = determine_heart_icon(request.user, img_id)
+        return redirect("products:product_detail", product.pk, img.pk)
+
+    heart = determine_heart_icon(request.user, img.pk)
+    track_product_view(request.user, product)
+    related_products = get_related_products(product, limit=8)
 
     return render(
         request,
@@ -90,6 +106,7 @@ def product_detail(request, pk, img_id):
             "form": form,
             "heart": heart,
             "image": img,
+            "related_products": related_products,
         },
     )
 
@@ -107,6 +124,7 @@ def handle_cart_action(request, product, img):
         create_cart_item(request, product, img)
     else:
         update_cart_item(request, img, product)
+    track_cart_add(request.user, product)
 
 
 def _safe_int(value, default=1):
@@ -132,25 +150,30 @@ def create_cart_item(request, product, img):
 
 def update_cart_item(request, img, product):
     cart_qs = Cart.objects.filter(user=request.user, image=img)
+    qty = _safe_int(request.POST.get("qtybutton"))
     if product.parameters:
         param = request.POST.get("param_value", "")
-        if str(param).isdigit():
-            cart_qs.update(parameters_value=param)
+        # same image + same param → bump qty; otherwise just update param
+        existing = cart_qs.filter(parameters_value=param).first() if param else None
+        if existing:
+            cart_qs.filter(pk=existing.pk).update(count=F("count") + qty)
         else:
-            cart_qs.update(count=F("count") + 1)
+            cart_qs.update(
+                parameters_value=param,
+                count=F("count") + qty,
+            )
     else:
-        cart_qs.update(count=F("count") + _safe_int(request.POST.get("qtybutton")))
+        cart_qs.update(count=F("count") + qty)
 
 
 def get_cart_count(request, product):
-    if product.parameters:
-        return 1
     return _safe_int(request.POST.get("qtybutton"))
 
 
 def handle_wishlist_action(request, product, img):
     if img_not_in_shop_or_wishlist(img.id, request.user, Wishlist):
         Wishlist.objects.create(user=request.user, product=product, image=img)
+        track_wishlist_add(request.user, product)
         messages.success(request, "Добавлено в избранное")
     else:
         Wishlist.objects.filter(user=request.user, image=img).delete()
@@ -188,7 +211,11 @@ def profile(request):
             )
             messages.success(request, "Данные аккаунта успешно сохранены")
             return redirect("products:profile")
-    context = {"orders": orders, "form": form}
+    context = {
+        "orders": orders,
+        "form": form,
+        "recommended_products": get_personalized_products(request.user, limit=8),
+    }
     if request.user.is_staff:
         context["orders_staff"] = Order.objects.select_related("user").order_by("-date")
     return render(request, "products/profile.html", context)
@@ -208,6 +235,7 @@ def create_order(user, address, carrier):
             total_price=total_price,
             carrier=carrier,
         )
+        purchased_products = []
         for elem in queryset:
             data = {
                 "user": user,
@@ -225,7 +253,9 @@ def create_order(user, address, carrier):
                 )
             product_in_order = ProductInOrder.objects.create(**data)
             user_order.products.add(product_in_order)
+            purchased_products.append(elem.product)
         queryset.delete()
+    track_purchase(user, purchased_products)
     return user_order
 
 
@@ -306,15 +336,20 @@ def order_detail(request, pk):
     if order_obj.user != request.user and not request.user.is_staff:
         raise Http404
 
+    cancellable_statuses = {"Создан", "Собирается"}
+    can_cancel = (
+        (order_obj.user == request.user or request.user.is_staff)
+        and order_obj.status in cancellable_statuses
+    )
+
     if request.method == "POST":
-        if request.user.is_staff or (
-            order_obj.user == request.user and order_obj.status == "Создан"
-        ):
-            order_obj.delete()
+        if can_cancel:
+            order_obj.status = "Отменен"
+            order_obj.save(update_fields=["status"])
             messages.success(request, "Заказ отменён")
         else:
             messages.error(request, "Этот заказ нельзя отменить")
-        return redirect("products:profile")
+        return redirect("products:order_detail", order_obj.pk)
 
     items = order_obj.products.select_related("product", "image").all()
     return render(
@@ -324,10 +359,7 @@ def order_detail(request, pk):
             "order": order_obj,
             "items": items,
             "total_price": order_obj.total_price,
-            "can_cancel": (
-                request.user.is_staff
-                or (order_obj.user == request.user and order_obj.status == "Создан")
-            ),
+            "can_cancel": can_cancel,
         },
     )
 
@@ -352,6 +384,7 @@ def wishlist(request):
                 Cart.objects.filter(user=request.user, image=item.image).update(
                     count=F("count") + 1
                 )
+            track_cart_add(request.user, item.product)
             messages.success(request, "Товар добавлен в корзину")
         elif request.POST.get("pk_w"):
             Wishlist.objects.filter(
