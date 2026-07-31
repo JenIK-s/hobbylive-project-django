@@ -285,13 +285,36 @@ class ProductInOrder(models.Model):
 
 
 class Order(models.Model):
+    STATUS_CREATED = "Создан"
+    STATUS_ASSEMBLY = "Собирается"
+    STATUS_SHIPPING = "В пути"
+    STATUS_DELIVERED = "Доставлено"
+    STATUS_RECEIVED = "Получено"
+    STATUS_CANCELLED = "Отменен"
+
+    FLOW = (
+        STATUS_CREATED,
+        STATUS_ASSEMBLY,
+        STATUS_SHIPPING,
+        STATUS_DELIVERED,
+        STATUS_RECEIVED,
+    )
+
+    # Следующее действие для суперпользователя: текущий статус → (новый статус, текст кнопки)
+    STATUS_ACTIONS = {
+        STATUS_CREATED: (STATUS_ASSEMBLY, "Товар собирается"),
+        STATUS_ASSEMBLY: (STATUS_SHIPPING, "Передали в доставку"),
+        STATUS_SHIPPING: (STATUS_DELIVERED, "Товар доставлен"),
+        STATUS_DELIVERED: (STATUS_RECEIVED, "Клиент получил заказ"),
+    }
+
     choises = (
-        ("Создан", "Создан"),
-        ("Собирается", "Собирается"),
-        ("В пути", "В пути"),
-        ("Доставлено", "Доставлено"),
-        ("Получено", "Получено"),
-        ("Отменен", "Отменен"),
+        (STATUS_CREATED, STATUS_CREATED),
+        (STATUS_ASSEMBLY, STATUS_ASSEMBLY),
+        (STATUS_SHIPPING, STATUS_SHIPPING),
+        (STATUS_DELIVERED, STATUS_DELIVERED),
+        (STATUS_RECEIVED, STATUS_RECEIVED),
+        (STATUS_CANCELLED, STATUS_CANCELLED),
     )
     products = models.ManyToManyField(
         ProductInOrder,
@@ -320,6 +343,30 @@ class Order(models.Model):
         max_length=255,
         verbose_name='Перевозчик'
     )
+    first_name = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        verbose_name="Имя",
+    )
+    last_name = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        verbose_name="Фамилия",
+    )
+    phone = models.CharField(
+        max_length=32,
+        blank=True,
+        default="",
+        verbose_name="Телефон",
+    )
+    comment = models.CharField(
+        max_length=1000,
+        blank=True,
+        default="",
+        verbose_name="Комментарий",
+    )
 
     class Meta:
         verbose_name = "Заказ"
@@ -327,6 +374,40 @@ class Order(models.Model):
 
     def __str__(self):
         return f"{self.user.username} Order"
+
+    def status_track(self):
+        """Шаги дорожки статуса для шаблона."""
+        if self.status == self.STATUS_CANCELLED:
+            return {
+                "cancelled": True,
+                "steps": [
+                    {"label": label, "state": "muted"} for label in self.FLOW
+                ],
+            }
+
+        try:
+            current_idx = self.FLOW.index(self.status)
+        except ValueError:
+            current_idx = 0
+
+        steps = []
+        for idx, label in enumerate(self.FLOW):
+            if idx < current_idx:
+                state = "done"
+            elif idx == current_idx:
+                state = "current"
+            else:
+                state = "todo"
+            steps.append({"label": label, "state": state})
+        return {"cancelled": False, "steps": steps}
+
+    def next_status_action(self):
+        """Кнопка следующего шага для суперпользователя, либо None."""
+        action = self.STATUS_ACTIONS.get(self.status)
+        if not action:
+            return None
+        next_status, label = action
+        return {"status": next_status, "label": label}
 
 
 class ProductPopularity(models.Model):

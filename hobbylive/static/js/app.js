@@ -180,10 +180,34 @@
         });
     });
 
+    /* —— Checkout delivery toggle —— */
+    $$('[data-checkout]').forEach(function (root) {
+        var fields = $('[data-delivery-fields]', root);
+        var pickupNote = $('[data-pickup-note]', root);
+        var radios = $$('[data-delivery-method]', root);
+        var tabs = $$('.method-tab', root);
+
+        function syncMethod() {
+            var selected = radios.find(function (r) { return r.checked; });
+            var isDelivery = selected && selected.value === 'delivery';
+            if (fields) fields.hidden = !isDelivery;
+            if (pickupNote) pickupNote.hidden = !!isDelivery;
+            tabs.forEach(function (tab) {
+                var input = $('input', tab);
+                tab.classList.toggle('is-on', !!(input && input.checked));
+            });
+        }
+
+        radios.forEach(function (radio) {
+            radio.addEventListener('change', syncMethod);
+        });
+        syncMethod();
+    });
+
     /* —— Search history —— */
     var HISTORY_KEY = 'shop_search_history';
     var HISTORY_MAX = 8;
-    var REMOVE_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+    var REMOVE_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6L18 18M18 6L6 18"/></svg>';
 
     function readHistory() {
         try {

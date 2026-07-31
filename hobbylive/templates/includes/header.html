@@ -33,7 +33,6 @@
         <div class="actions">
             <nav class="nav-desktop" aria-label="Меню">
                 <a href="{% url 'products:categories' %}">Каталог</a>
-                <a href="{% url 'products:popular' %}">Популярные</a>
                 {% if user.is_authenticated %}
                     <a href="{% url 'products:profile' %}">Аккаунт</a>
                 {% else %}
@@ -118,7 +117,6 @@
         <nav class="drawer-nav">
             <a href="{% url 'products:index' %}">Главная</a>
             <a href="{% url 'products:categories' %}">Каталог</a>
-            <a href="{% url 'products:popular' %}">Популярные</a>
             <a href="{% url 'products:wishlist' %}">Избранное</a>
             {% if user.is_authenticated %}
                 <a href="{% url 'products:profile' %}">Аккаунт</a>

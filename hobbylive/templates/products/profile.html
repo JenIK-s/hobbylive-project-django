@@ -11,16 +11,16 @@
 <div class="wrap sheet">
     <div class="profile-layout">
         <nav class="profile-nav" data-profile-nav aria-label="Разделы аккаунта">
-            <button type="button" class="is-on" data-profile-tab="orders">Заказы</button>
-            <button type="button" data-profile-tab="settings">Настройки</button>
-            {% if user.is_staff %}
-                <button type="button" data-profile-tab="staff">Все заказы</button>
+            <button type="button" class="{% if request.GET.tab != 'staff' and request.GET.tab != 'settings' %}is-on{% endif %}" data-profile-tab="orders">Заказы</button>
+            <button type="button" class="{% if request.GET.tab == 'settings' %}is-on{% endif %}" data-profile-tab="settings">Настройки</button>
+            {% if user.is_superuser %}
+                <button type="button" class="{% if request.GET.tab == 'staff' %}is-on{% endif %}" data-profile-tab="staff">Все заказы</button>
             {% endif %}
             <a href="{% url 'products:wishlist' %}">Избранное</a>
             <a href="{% url 'users:logout' %}">Выйти</a>
         </nav>
         <div>
-            <div class="panel profile-panel is-on" data-profile-panel="orders">
+            <div class="panel profile-panel{% if request.GET.tab != 'staff' and request.GET.tab != 'settings' %} is-on{% endif %}" data-profile-panel="orders">
                 <h2 class="panel__title">История заказов</h2>
                 {% if orders %}
                     <div class="orders">
@@ -43,7 +43,7 @@
                 {% endif %}
             </div>
 
-            <div class="panel profile-panel" data-profile-panel="settings">
+            <div class="panel profile-panel{% if request.GET.tab == 'settings' %} is-on{% endif %}" data-profile-panel="settings">
                 <h2 class="panel__title">Профиль</h2>
                 <form method="post" action="{% url 'products:profile' %}">
                     {% csrf_token %}
@@ -58,21 +58,42 @@
                 </form>
             </div>
 
-            {% if user.is_staff and orders_staff %}
-            <div class="panel profile-panel" data-profile-panel="staff">
-                <h2 class="panel__title">Все заказы (staff)</h2>
-                <div class="orders">
+            {% if user.is_superuser %}
+            <div class="panel profile-panel{% if request.GET.tab == 'staff' %} is-on{% endif %}" data-profile-panel="staff">
+                <h2 class="panel__title">Трекинг заказов</h2>
+                <p class="muted" style="margin-top:-0.35rem;margin-bottom:1rem;">Все оформленные заказы · кнопка следующего шага</p>
+                {% if orders_staff %}
+                <div class="orders-admin">
                     {% for order in orders_staff %}
-                        <a class="order-row" href="{% url 'products:order_detail' order.pk %}">
-                            <span class="order-row__id">№{{ order.pk }}</span>
-                            <span class="order-row__info">
-                                {{ order.user }} · {{ order.date|date:"d.m.Y" }}
-                                <span class="status{% if order.status == 'Отменен' %} status--cancel{% endif %}">{{ order.status }}</span>
-                            </span>
-                            <strong>{{ order.total_price }} ₽</strong>
-                        </a>
+                        <article class="orders-admin__row">
+                            <div class="orders-admin__main">
+                                <a class="orders-admin__id" href="{% url 'products:order_detail' order.pk %}">№{{ order.pk }}</a>
+                                <div class="orders-admin__meta">
+                                    <span>{{ order.user }}</span>
+                                    <span>{{ order.date|date:"d.m.Y H:i" }}</span>
+                                    <span class="status{% if order.status == 'Отменен' %} status--cancel{% endif %}">{{ order.status }}</span>
+                                    <strong>{{ order.total_price }} ₽</strong>
+                                </div>
+                            </div>
+                            <form class="orders-admin__form" method="post" action="{% url 'products:order_detail' order.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{% url 'products:profile' %}?tab=staff">
+                                {% with action=order.next_status_action %}
+                                    {% if action %}
+                                        <button class="btn btn--sm" type="submit" name="quick_status" value="{{ action.status }}">{{ action.label }}</button>
+                                    {% else %}
+                                        <span class="muted">Готово</span>
+                                    {% endif %}
+                                {% endwith %}
+                            </form>
+                        </article>
                     {% endfor %}
                 </div>
+                {% else %}
+                    <div class="empty" style="border:0;box-shadow:none;padding:1.25rem 0;">
+                        <h3>Заказов пока нет</h3>
+                    </div>
+                {% endif %}
             </div>
             {% endif %}
         </div>

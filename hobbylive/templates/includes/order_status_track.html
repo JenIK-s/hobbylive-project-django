@@ -1,0 +1,24 @@
+{% if track.cancelled %}
+<div class="status-track status-track--cancelled" role="status" aria-label="Заказ отменён">
+    <div class="status-track__cancel-badge">Заказ отменён</div>
+    <ol class="status-track__list">
+        {% for step in track.steps %}
+            <li class="status-track__step is-{{ step.state }}">
+                <span class="status-track__dot" aria-hidden="true"></span>
+                <span class="status-track__label">{{ step.label }}</span>
+            </li>
+        {% endfor %}
+    </ol>
+</div>
+{% else %}
+<div class="status-track" role="list" aria-label="Статус заказа">
+    <ol class="status-track__list">
+        {% for step in track.steps %}
+            <li class="status-track__step is-{{ step.state }}" role="listitem">
+                <span class="status-track__dot" aria-hidden="true"></span>
+                <span class="status-track__label">{{ step.label }}</span>
+            </li>
+        {% endfor %}
+    </ol>
+</div>
+{% endif %}

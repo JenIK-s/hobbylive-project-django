@@ -2,41 +2,150 @@
 {% block title %}Оформление заказа{% endblock %}
 {% block content %}
 <div class="mast">
-    <div class="wrap wrap--m">
+    <div class="wrap">
         <div class="crumbs"><a href="{% url 'products:index' %}">Главная</a><span>/</span><span>Оформление</span></div>
         <h1>Оформление заказа</h1>
-        <p>Выберите способ получения</p>
+        <p>Укажите контакты и способ получения</p>
     </div>
 </div>
-<div class="wrap wrap--m sheet">
+<div class="wrap sheet">
     <div class="steps-bar">
-        <span class="is-current">1. Получение</span>
+        <span class="is-current">1. Данные</span>
         <span>2. Подтверждение</span>
     </div>
-    <div class="choice-stack">
-        <section class="choice-card">
-            <h2>Самовывоз</h2>
-            <p>г. Москва, ул. Артюхиной д. 4 · ежедневно 10:00–17:00</p>
-            <p>После оформления сообщим, когда заказ будет готов к выдаче.</p>
-            <form method="post" action="{% url 'products:order' %}">
-                {% csrf_token %}
-                <button class="btn" type="submit" name="to_order_pickup" value="ok">Продолжить с самовывозом</button>
-            </form>
-        </section>
-        <section class="choice-card">
-            <h2>Доставка</h2>
-            <form method="post" action="{% url 'products:order' %}">
-                {% csrf_token %}
-                {% for elem in form %}
+
+    <div class="checkout" data-checkout>
+        <form method="post" action="{% url 'products:order' %}" class="checkout-form" novalidate>
+            {% csrf_token %}
+
+            <section class="panel checkout-block">
+                <h2 class="panel__title">Способ получения</h2>
+                <div class="method-tabs" role="radiogroup" aria-label="Способ получения">
+                    {% for value, label in form.delivery_method.field.choices %}
+                        <label class="method-tab{% if form.delivery_method.value == value %} is-on{% endif %}">
+                            <input
+                                type="radio"
+                                name="{{ form.delivery_method.html_name }}"
+                                value="{{ value }}"
+                                {% if form.delivery_method.value == value %}checked{% endif %}
+                                data-delivery-method
+                            >
+                            <span>{{ label }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+                {% if form.delivery_method.errors %}<div class="field-error">{{ form.delivery_method.errors }}</div>{% endif %}
+
+                <div class="pickup-note" data-pickup-note>
+                    <strong>Пункт выдачи:</strong> г. Москва, ул. Артюхиной д. 4<br>
+                    Ежедневно 10:00–17:00 · сообщим, когда заказ будет готов
+                </div>
+            </section>
+
+            <section class="panel checkout-block">
+                <h2 class="panel__title">Контактные данные</h2>
+                <div class="form-grid">
                     <div class="field">
-                        <label>{{ elem.label }}</label>
-                        {{ elem }}
-                        {% if elem.errors %}<div class="field-error">{{ elem.errors }}</div>{% endif %}
+                        <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}<div class="field-error">{{ form.first_name.errors }}</div>{% endif %}
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}<div class="field-error">{{ form.last_name.errors }}</div>{% endif %}
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
+                        {{ form.phone }}
+                        {% if form.phone.errors %}<div class="field-error">{{ form.phone.errors }}</div>{% endif %}
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.email.id_for_label }}">{{ form.email.label }} <span class="muted">(необязательно)</span></label>
+                        {{ form.email }}
+                        {% if form.email.errors %}<div class="field-error">{{ form.email.errors }}</div>{% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel checkout-block" data-delivery-fields {% if form.delivery_method.value != 'delivery' %}hidden{% endif %}>
+                <h2 class="panel__title">Адрес доставки</h2>
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="{{ form.carrier.id_for_label }}">{{ form.carrier.label }}</label>
+                        {{ form.carrier }}
+                        {% if form.carrier.errors %}<div class="field-error">{{ form.carrier.errors }}</div>{% endif %}
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.city.id_for_label }}">{{ form.city.label }}</label>
+                        {{ form.city }}
+                        {% if form.city.errors %}<div class="field-error">{{ form.city.errors }}</div>{% endif %}
+                    </div>
+                    <div class="field field--full">
+                        <label for="{{ form.street.id_for_label }}">{{ form.street.label }}</label>
+                        {{ form.street }}
+                        {% if form.street.errors %}<div class="field-error">{{ form.street.errors }}</div>{% endif %}
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.house.id_for_label }}">{{ form.house.label }}</label>
+                        {{ form.house }}
+                        {% if form.house.errors %}<div class="field-error">{{ form.house.errors }}</div>{% endif %}
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.apartment.id_for_label }}">{{ form.apartment.label }}</label>
+                        {{ form.apartment }}
+                        {% if form.apartment.errors %}<div class="field-error">{{ form.apartment.errors }}</div>{% endif %}
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.entrance.id_for_label }}">{{ form.entrance.label }}</label>
+                        {{ form.entrance }}
+                        {% if form.entrance.errors %}<div class="field-error">{{ form.entrance.errors }}</div>{% endif %}
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.floor.id_for_label }}">{{ form.floor.label }}</label>
+                        {{ form.floor }}
+                        {% if form.floor.errors %}<div class="field-error">{{ form.floor.errors }}</div>{% endif %}
+                    </div>
+                    <div class="field field--full">
+                        <label for="{{ form.intercom.id_for_label }}">{{ form.intercom.label }}</label>
+                        {{ form.intercom }}
+                        {% if form.intercom.errors %}<div class="field-error">{{ form.intercom.errors }}</div>{% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel checkout-block">
+                <h2 class="panel__title">Комментарий</h2>
+                <div class="field" style="margin:0;">
+                    {{ form.comment }}
+                    {% if form.comment.errors %}<div class="field-error">{{ form.comment.errors }}</div>{% endif %}
+                </div>
+            </section>
+
+            <div class="checkout-actions">
+                <button class="btn btn--lg" type="submit">Перейти к подтверждению</button>
+                <a href="{% url 'products:categories' %}" class="btn btn--ghost">В каталог</a>
+            </div>
+        </form>
+
+        <aside class="summary">
+            <h2>Ваш заказ</h2>
+            <div class="summary-lines">
+                {% for row in lines %}
+                    <div class="summary-line">
+                        <img src="{{ row.item.image.image.url }}" alt="">
+                        <div>
+                            <strong>{{ row.item.product.name }}{% if row.item.image.color %} · {{ row.item.image.color }}{% endif %}</strong>
+                            <span>{{ row.item.count }} × {{ row.item.product.price }} ₽</span>
+                        </div>
+                        <em>{{ row.line_total }} ₽</em>
                     </div>
                 {% endfor %}
-                <button class="btn" type="submit" name="to_order" value="ok2">Продолжить с доставкой</button>
-            </form>
-        </section>
+            </div>
+            <div class="summary__row"><span>Товары ({{ items_count }})</span><span>{{ total_price }} ₽</span></div>
+            <div class="summary__row"><span>Доставка</span><span>0 ₽</span></div>
+            <div class="summary__total"><span>Итого</span><span>{{ total_price }} ₽</span></div>
+        </aside>
     </div>
 </div>
 {% endblock %}

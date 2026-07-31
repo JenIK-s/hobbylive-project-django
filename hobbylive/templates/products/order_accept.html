@@ -3,46 +3,79 @@
 {% block content %}
 <div class="mast">
     <div class="wrap">
-        <div class="crumbs"><a href="{% url 'products:index' %}">Главная</a><span>/</span><span>Подтверждение</span></div>
+        <div class="crumbs">
+            <a href="{% url 'products:index' %}">Главная</a><span>/</span>
+            <a href="{% url 'products:order' %}">Оформление</a><span>/</span>
+            <span>Подтверждение</span>
+        </div>
         <h1>Подтверждение заказа</h1>
         <p>Проверьте состав и данные перед оформлением</p>
     </div>
 </div>
 <div class="wrap sheet">
     <div class="steps-bar">
-        <span>1. Получение</span>
+        <span>1. Данные</span>
         <span class="is-current">2. Подтверждение</span>
     </div>
     <div class="checkout">
-        <div class="line-list">
-            {% for product in products %}
-                <article class="line">
-                    <a href="{% url 'products:product_detail' product.product.pk product.image.pk %}">
-                        <img src="{{ product.image.image.url }}" alt="{{ product.product.name }}">
-                    </a>
-                    <div>
-                        <h3 class="line__name">
-                            <a href="{% url 'products:product_detail' product.product.pk product.image.pk %}">
-                                {{ product.product.name }}{% if product.image.color %} · {{ product.image.color }}{% endif %}
-                            </a>
-                        </h3>
-                        <p class="line__meta">{{ product.count }} шт. · {{ product.product.price }} ₽ / шт.</p>
-                    </div>
-                    <div class="line__price">{{ product.product.price }} ₽</div>
-                </article>
-            {% endfor %}
+        <div>
+            <section class="panel checkout-block">
+                <h2 class="panel__title">Получатель</h2>
+                <ul class="meta-list">
+                    <li>{{ data.first_name }} {{ data.last_name }}</li>
+                    <li>Телефон: <strong>{{ data.phone }}</strong></li>
+                    {% if data.email %}<li>Email: <strong>{{ data.email }}</strong></li>{% endif %}
+                </ul>
+            </section>
+            <section class="panel checkout-block">
+                <h2 class="panel__title">Получение</h2>
+                <ul class="meta-list">
+                    <li>Способ: <strong>{{ data.carrier }}</strong></li>
+                    <li>Адрес: <strong>{{ data.address }}</strong></li>
+                    {% if data.delivery_method == 'delivery' %}
+                        {% if data.apartment %}<li>Квартира: <strong>{{ data.apartment }}</strong></li>{% endif %}
+                        {% if data.entrance %}<li>Подъезд: <strong>{{ data.entrance }}</strong></li>{% endif %}
+                        {% if data.floor %}<li>Этаж: <strong>{{ data.floor }}</strong></li>{% endif %}
+                        {% if data.intercom %}<li>Домофон: <strong>{{ data.intercom }}</strong></li>{% endif %}
+                    {% endif %}
+                    {% if data.comment %}<li>Комментарий: <strong>{{ data.comment }}</strong></li>{% endif %}
+                </ul>
+                <a href="{% url 'products:order' %}" class="btn btn--ghost btn--sm">Изменить данные</a>
+            </section>
+
+            <div class="line-list">
+                {% for row in lines %}
+                    <article class="line">
+                        <a href="{% url 'products:product_detail' row.item.product.pk row.item.image.pk %}">
+                            <img src="{{ row.item.image.image.url }}" alt="{{ row.item.product.name }}">
+                        </a>
+                        <div>
+                            <h3 class="line__name">
+                                <a href="{% url 'products:product_detail' row.item.product.pk row.item.image.pk %}">
+                                    {{ row.item.product.name }}{% if row.item.image.color %} · {{ row.item.image.color }}{% endif %}
+                                </a>
+                            </h3>
+                            <p class="line__meta">
+                                {{ row.item.count }} шт. · {{ row.item.product.price }} ₽ / шт.
+                                {% if row.item.parameters_value %} · {{ row.item.parameters }}: {{ row.item.parameters_value }}{% endif %}
+                            </p>
+                        </div>
+                        <div class="line__price">{{ row.line_total }} ₽</div>
+                    </article>
+                {% endfor %}
+            </div>
         </div>
+
         <aside class="summary">
-            <h2>Ваш заказ</h2>
-            <div class="summary__row"><span>Способ</span><span>{{ data.carrier }}</span></div>
-            <div class="summary__row"><span>Адрес</span><span>{{ data.address }}</span></div>
+            <h2>К оплате</h2>
+            <div class="summary__row"><span>Товары ({{ items_count }})</span><span>{{ total_price }} ₽</span></div>
             <div class="summary__row"><span>Доставка</span><span>0 ₽</span></div>
-            <div class="summary__row"><span>Товары</span><span>{{ total_price }} ₽</span></div>
-            <div class="summary__total"><span>К оплате</span><span>{{ total_price }} ₽</span></div>
+            <div class="summary__total"><span>Итого</span><span>{{ total_price }} ₽</span></div>
             <form method="post" action="{% url 'products:order_accept' %}">
                 {% csrf_token %}
                 <button class="btn btn--block btn--lg" type="submit" name="accept" value="ok">Подтвердить заказ</button>
             </form>
+            <a href="{% url 'products:order' %}" class="btn btn--ghost btn--block" style="margin-top:0.55rem;">Назад</a>
         </aside>
     </div>
 </div>

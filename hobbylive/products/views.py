@@ -216,12 +216,12 @@ def profile(request):
         "form": form,
         "recommended_products": get_personalized_products(request.user, limit=8),
     }
-    if request.user.is_staff:
+    if request.user.is_superuser:
         context["orders_staff"] = Order.objects.select_related("user").order_by("-date")
     return render(request, "products/profile.html", context)
 
 
-def create_order(user, address, carrier):
+def create_order(user, checkout_data):
     queryset = Cart.objects.filter(user=user).select_related("product", "image")
     if not queryset.exists():
         raise ValueError("Корзина пуста")
@@ -231,9 +231,13 @@ def create_order(user, address, carrier):
     with transaction.atomic():
         user_order = Order.objects.create(
             user=user,
-            address=address,
+            address=checkout_data.get("address", ""),
             total_price=total_price,
-            carrier=carrier,
+            carrier=checkout_data.get("carrier", ""),
+            first_name=checkout_data.get("first_name", ""),
+            last_name=checkout_data.get("last_name", ""),
+            phone=checkout_data.get("phone", ""),
+            comment=checkout_data.get("comment", ""),
         )
         purchased_products = []
         for elem in queryset:
@@ -261,41 +265,67 @@ def create_order(user, address, carrier):
 
 @login_required
 def order(request):
-    cart = Cart.objects.filter(user=request.user)
+    cart = Cart.objects.filter(user=request.user).select_related("product", "image")
     if not cart.exists():
         messages.warning(request, "Корзина пуста — добавьте товары перед оформлением")
         return redirect("products:categories")
 
-    form = OrderForm(
-        initial={
-            "first_name": request.user.first_name,
-            "last_name": request.user.last_name,
-        }
-    )
-    if request.method == "POST":
-        if request.POST.get("to_order"):
-            form = OrderForm(request.POST)
-            if form.is_valid():
-                request.session["data"] = {
-                    "address": form.cleaned_data["address"],
-                    "carrier": form.cleaned_data["carrier"],
-                    "phone_number": form.cleaned_data["phone_number"],
-                }
-                return redirect("products:order_accept")
-        elif request.POST.get("to_order_pickup"):
-            request.session["data"] = {
-                "address": "г. Москва, ул. Артюхиной д. 4",
-                "carrier": "Самовывоз",
-                "phone_number": "",
+    initial = {
+        "delivery_method": OrderForm.METHOD_PICKUP,
+        "first_name": request.user.first_name,
+        "last_name": request.user.last_name,
+        "email": request.user.email,
+    }
+    saved = request.session.get("checkout_data") or {}
+    if saved:
+        initial.update(
+            {
+                "delivery_method": saved.get("delivery_method", OrderForm.METHOD_PICKUP),
+                "first_name": saved.get("first_name") or initial["first_name"],
+                "last_name": saved.get("last_name") or initial["last_name"],
+                "phone": saved.get("phone", ""),
+                "email": saved.get("email") or initial["email"],
+                "city": saved.get("city", ""),
+                "street": saved.get("street", ""),
+                "house": saved.get("house", ""),
+                "apartment": saved.get("apartment", ""),
+                "entrance": saved.get("entrance", ""),
+                "floor": saved.get("floor", ""),
+                "intercom": saved.get("intercom", ""),
+                "carrier": saved.get("carrier", "") if saved.get("delivery_method") == OrderForm.METHOD_DELIVERY else "",
+                "comment": saved.get("comment", ""),
             }
+        )
+
+    form = OrderForm(initial=initial)
+    if request.method == "POST":
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            request.session["checkout_data"] = form.build_session_payload()
             return redirect("products:order_accept")
 
-    return render(request, "products/order.html", {"form": form})
+    total_price = 0
+    lines = []
+    for item in cart:
+        line_total = int(item.product.price * item.count)
+        total_price += line_total
+        lines.append({"item": item, "line_total": line_total})
+
+    return render(
+        request,
+        "products/order.html",
+        {
+            "form": form,
+            "lines": lines,
+            "total_price": total_price,
+            "items_count": sum(row["item"].count for row in lines),
+        },
+    )
 
 
 @login_required
 def order_accept(request):
-    data = request.session.get("data")
+    data = request.session.get("checkout_data")
     if not data:
         return redirect("products:order")
 
@@ -304,28 +334,35 @@ def order_accept(request):
         messages.warning(request, "Корзина пуста")
         return redirect("products:categories")
 
-    total_price = int(sum(elem.product.price * elem.count for elem in queryset))
+    lines = []
+    total_price = 0
+    for item in queryset:
+        line_total = int(item.product.price * item.count)
+        total_price += line_total
+        lines.append({"item": item, "line_total": line_total})
 
     if request.method == "POST":
         try:
-            create_order(request.user, data.get("address"), data.get("carrier"))
+            order_obj = create_order(request.user, data)
         except ValueError as exc:
             messages.error(request, str(exc))
             return redirect("products:categories")
+        request.session.pop("checkout_data", None)
         request.session.pop("data", None)
         messages.success(
             request,
-            "Заказ успешно оформлен! Мы свяжемся с вами в ближайшее время.",
+            f"Заказ №{order_obj.pk} оформлен! Мы свяжемся с вами для подтверждения.",
         )
-        return redirect("products:profile")
+        return redirect("products:order_detail", order_obj.pk)
 
     return render(
         request,
         "products/order_accept.html",
         {
             "data": data,
-            "products": queryset,
+            "lines": lines,
             "total_price": total_price,
+            "items_count": sum(row["item"].count for row in lines),
         },
     )
 
@@ -333,22 +370,49 @@ def order_accept(request):
 @login_required
 def order_detail(request, pk):
     order_obj = get_object_or_404(Order, pk=pk)
-    if order_obj.user != request.user and not request.user.is_staff:
+    if (
+        order_obj.user != request.user
+        and not request.user.is_staff
+        and not request.user.is_superuser
+    ):
         raise Http404
 
-    cancellable_statuses = {"Создан", "Собирается"}
+    valid_statuses = {c[0] for c in Order.choises}
+    cancellable_statuses = {Order.STATUS_CREATED, Order.STATUS_ASSEMBLY}
     can_cancel = (
-        (order_obj.user == request.user or request.user.is_staff)
+        (order_obj.user == request.user or request.user.is_superuser)
         and order_obj.status in cancellable_statuses
     )
+    can_manage_status = request.user.is_superuser
 
     if request.method == "POST":
-        if can_cancel:
-            order_obj.status = "Отменен"
-            order_obj.save(update_fields=["status"])
-            messages.success(request, "Заказ отменён")
-        else:
-            messages.error(request, "Этот заказ нельзя отменить")
+        if can_manage_status and (
+            request.POST.get("set_status") or request.POST.get("quick_status")
+        ):
+            new_status = (
+                request.POST.get("quick_status") or request.POST.get("status") or ""
+            ).strip()
+            if new_status in valid_statuses:
+                order_obj.status = new_status
+                order_obj.save(update_fields=["status"])
+                messages.success(request, f"Статус заказа изменён на «{new_status}»")
+            else:
+                messages.error(request, "Некорректный статус")
+            next_url = request.POST.get("next") or ""
+            if next_url.startswith("/") and not next_url.startswith("//"):
+                return redirect(next_url)
+            return redirect("products:order_detail", order_obj.pk)
+
+        if request.POST.get("delete") or request.POST.get("cancel"):
+            if can_cancel:
+                order_obj.status = Order.STATUS_CANCELLED
+                order_obj.save(update_fields=["status"])
+                messages.success(request, "Заказ отменён")
+            else:
+                messages.error(request, "Этот заказ нельзя отменить")
+            return redirect("products:order_detail", order_obj.pk)
+
+        messages.error(request, "Неизвестное действие")
         return redirect("products:order_detail", order_obj.pk)
 
     items = order_obj.products.select_related("product", "image").all()
@@ -360,6 +424,9 @@ def order_detail(request, pk):
             "items": items,
             "total_price": order_obj.total_price,
             "can_cancel": can_cancel,
+            "can_manage_status": can_manage_status,
+            "status_track": order_obj.status_track(),
+            "next_status_action": order_obj.next_status_action(),
         },
     )
 

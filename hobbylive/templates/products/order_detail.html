@@ -12,6 +12,43 @@
     </div>
 </div>
 <div class="wrap sheet">
+    {% include "includes/order_status_track.html" with track=status_track %}
+
+    {% if can_manage_status %}
+    <div class="status-manage panel">
+        <div class="status-manage__head">
+            <h2 class="panel__title" style="margin-bottom:0.25rem;">Управление заказом</h2>
+            <p class="muted" style="margin:0;">
+                {% if next_status_action %}
+                    Следующий шаг: перевести заказ дальше по цепочке
+                {% elif order.status == 'Получено' %}
+                    Заказ завершён
+                {% elif order.status == 'Отменен' %}
+                    Заказ отменён — дальнейшие шаги недоступны
+                {% else %}
+                    Нет доступных действий
+                {% endif %}
+            </p>
+        </div>
+        <div class="status-manage__actions">
+            {% if next_status_action %}
+                <form method="post" action="{% url 'products:order_detail' order.pk %}">
+                    {% csrf_token %}
+                    <button class="btn status-manage__next" type="submit" name="quick_status" value="{{ next_status_action.status }}">
+                        {{ next_status_action.label }}
+                    </button>
+                </form>
+            {% endif %}
+            {% if can_cancel %}
+                <form method="post" action="{% url 'products:order_detail' order.pk %}" onsubmit="return confirm('Отменить заказ №{{ order.pk }}?');">
+                    {% csrf_token %}
+                    <button class="btn btn--ghost status-manage__cancel" type="submit" name="cancel" value="1">Отменить заказ</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
     <div class="checkout">
         <div class="line-list">
             {% for product in items %}
@@ -25,9 +62,12 @@
                                 {{ product.product.name }}{% if product.image.color %} · {{ product.image.color }}{% endif %}
                             </a>
                         </h3>
-                        <p class="line__meta">{{ product.count }} шт. · {{ product.product.price }} ₽ / шт.</p>
+                        <p class="line__meta">
+                            {{ product.count }} шт. · {{ product.product.price }} ₽ / шт.
+                            {% if product.parameters_value %} · {{ product.parameters }}: {{ product.parameters_value }}{% endif %}
+                        </p>
                     </div>
-                    <div class="line__price">{{ product.product.price }} ₽</div>
+                    <div class="line__price">{% widthratio product.product.price 1 product.count as line_total %}{{ line_total }} ₽</div>
                 </article>
             {% empty %}
                 <div class="empty" style="border:0;box-shadow:none;"><h3>В заказе нет позиций</h3></div>
@@ -36,15 +76,20 @@
         <aside class="summary">
             <h2>Детали заказа</h2>
             <ul class="meta-list">
+                {% if order.first_name or order.last_name %}
+                    <li>Получатель: <strong>{{ order.first_name }} {{ order.last_name }}</strong></li>
+                {% endif %}
+                {% if order.phone %}<li>Телефон: <strong>{{ order.phone }}</strong></li>{% endif %}
                 <li>Способ: <strong>{{ order.carrier }}</strong></li>
                 <li>Адрес: <strong>{{ order.address }}</strong></li>
+                {% if order.comment %}<li>Комментарий: <strong>{{ order.comment }}</strong></li>{% endif %}
                 <li>Статус: <strong>{{ order.status }}</strong></li>
             </ul>
             <div class="summary__total"><span>Итого</span><span>{{ order.total_price }} ₽</span></div>
-            {% if can_cancel %}
+            {% if can_cancel and not can_manage_status %}
                 <form method="post" action="{% url 'products:order_detail' order.pk %}">
                     {% csrf_token %}
-                    <button class="btn btn--ghost btn--block" type="submit" name="delete" value="ok">Отменить заказ</button>
+                    <button class="btn btn--ghost btn--block" type="submit" name="cancel" value="ok">Отменить заказ</button>
                 </form>
             {% endif %}
             <a href="{% url 'products:profile' %}" class="btn btn--dark btn--block" style="margin-top:0.55rem;">К заказам</a>
