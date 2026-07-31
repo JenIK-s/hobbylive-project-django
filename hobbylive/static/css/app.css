@@ -855,7 +855,8 @@ ul { margin: 0; padding: 0; list-style: none; }
 .cat-tile:hover img { transform: scale(1.06); }
 .cat-tile__shade {
     position: absolute; inset: 0;
-    background: linear-gradient(to top, rgba(15,20,25,0.78) 0%, rgba(15,20,25,0.15) 55%, transparent 100%);
+    background: linear-gradient(to top, rgba(15,20,25,0.88) 0%, rgba(15,20,25,0.35) 45%, rgba(15,20,25,0.08) 100%);
+    pointer-events: none;
 }
 .cat-tile__name {
     position: absolute;
@@ -863,6 +864,8 @@ ul { margin: 0; padding: 0; list-style: none; }
     margin: 0;
     font-family: var(--font-m);
     font-size: 1.15rem;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
 }
 
 /* Masthead */

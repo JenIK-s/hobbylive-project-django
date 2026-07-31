@@ -1,11 +1,10 @@
 from pathlib import Path
-import hashlib
 import shutil
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageEnhance, ImageOps
 
 from products.models import (
     Cart,
@@ -17,11 +16,12 @@ from products.models import (
     ProductCharacteristic,
     ProductImage,
     ProductInOrder,
+    ProductPopularity,
+    UserInterest,
     Wishlist,
 )
 
 
-# Корневая категория → список подкатегорий
 CATEGORY_TREE = [
     ("Электроника", ["Наушники", "Гаджеты", "Аудио", "Питание"]),
     ("Дом и быт", ["Освещение", "Хранение", "Кухня", "Текстиль"]),
@@ -31,137 +31,130 @@ CATEGORY_TREE = [
     ("Аксессуары", ["Рюкзаки", "Сумки", "Кошельки", "Очки"]),
 ]
 
-# (name, root_index, sub_index, price, discount, description, colors, sizes)
+ROOT_PHOTOS = {
+    "Электроника": "c_electronics.jpg",
+    "Дом и быт": "c_home.jpg",
+    "Спорт": "c_sport.jpg",
+    "Одежда": "c_clothes.jpg",
+    "Красота": "c_beauty.jpg",
+    "Аксессуары": "c_accessories.jpg",
+}
+
+SUB_PHOTOS = {
+    "Наушники": "p_headphones.jpg",
+    "Гаджеты": "p_watch.jpg",
+    "Аудио": "p_speaker.jpg",
+    "Питание": "p_powerbank.jpg",
+    "Освещение": "p_lamp.jpg",
+    "Хранение": "p_organizer.jpg",
+    "Кухня": "p_cookware.jpg",
+    "Текстиль": "p_blanket.jpg",
+    "Йога": "p_yoga.jpg",
+    "Силовые": "p_dumbbells.jpg",
+    "Аксессуары": "p_bottle.jpg",
+    "Фитнес": "p_bands.jpg",
+    "Футболки": "p_tshirt.jpg",
+    "Верхняя одежда": "p_hoodie.jpg",
+    "Обувь": "p_sneakers.jpg",
+    "Джинсы": "p_jeans.jpg",
+    "Уход за лицом": "p_serum.jpg",
+    "Уход за руками": "p_cream.jpg",
+    "Наборы": "p_faceset.jpg",
+    "Волосы": "p_hairspray.jpg",
+    "Рюкзаки": "p_backpack.jpg",
+    "Сумки": "p_bag.jpg",
+    "Кошельки": "p_wallet.jpg",
+    "Очки": "p_glasses.jpg",
+}
+
+# (name, root_index, sub_index, price, discount, description, colors, sizes, photo_file)
 PRODUCTS = [
-    ("Беспроводные наушники Pulse X", 0, 0, 4990, 15, "Лёгкие наушники с активным шумоподавлением и автономностью до 30 часов.", ["Чёрный", "Белый"], None),
-    ("Смарт-часы Nova Watch", 0, 1, 8990, 10, "Умные часы с пульсометром, GPS и защитой от влаги IP68.", ["Графит", "Серебро"], ["40 мм", "44 мм"]),
-    ("Портативная колонка Boom Mini", 0, 2, 3490, 0, "Компактная Bluetooth-колонка с насыщенным басом и защитой от брызг.", ["Чёрный", "Синий"], None),
-    ("Powerbank 20000 mAh", 0, 3, 2790, 20, "Быстрая зарядка двух устройств одновременно. Компактный корпус.", ["Чёрный", "Белый"], None),
-    ("Настольная лампа Glow", 1, 0, 2190, 0, "Тёплый свет, регулировка яркости, USB-зарядка телефона на основании.", ["Белый", "Чёрный"], None),
-    ("Органайзер для кухни", 1, 1, 1590, 5, "Металлический органайзер для столовых приборов и мелочей.", ["Хром", "Чёрный"], None),
-    ("Набор посуды Everyday 6 пр.", 1, 2, 4590, 12, "Керамическое покрытие, подходит для индукции и посудомойки.", ["Серый", "Кремовый"], None),
-    ("Плед Soft Home 150×200", 1, 3, 3290, 0, "Мягкий плед из микрофибры — для дивана и путешествий.", ["Бежевый", "Серый", "Зелёный"], None),
-    ("Коврик для йоги ProMat", 2, 0, 2490, 0, "Нескользящий коврик толщиной 6 мм с чехлом в комплекте.", ["Синий", "Серый", "Розовый"], None),
-    ("Гантели 2×5 кг", 2, 1, 3890, 8, "Пара гантелей с неопреновым покрытием для комфортных тренировок дома.", ["Чёрный", "Красный"], None),
-    ("Спортивная бутылка 750 мл", 2, 2, 990, 0, "Герметичная бутылка из Tritan, не впитывает запахи.", ["Бирюзовый", "Чёрный", "Розовый"], None),
-    ("Фитнес-резинки Set 5", 2, 3, 1490, 25, "Набор из пяти лент разной нагрузки + мешочек для хранения.", ["Микс"], None),
-    ("Футболка Daily Cotton", 3, 0, 1890, 0, "Базовая футболка из плотного хлопка, свободный крой.", ["Белый", "Чёрный", "Олива"], ["S", "M", "L", "XL"]),
-    ("Худи Urban Soft", 3, 1, 4490, 15, "Утеплённое худи с капюшоном и карманом-кенгуру.", ["Серый", "Чёрный"], ["M", "L", "XL", "XXL"]),
-    ("Кроссовки Runner Lite", 3, 2, 6990, 10, "Лёгкие кроссовки для города и лёгкого бега.", ["Белый", "Чёрный"], ["40", "41", "42", "43", "44"]),
-    ("Джинсы Straight Fit", 3, 3, 5490, 0, "Классические джинсы средней посадки, плотный деним.", ["Синий", "Чёрный"], ["30", "32", "34", "36"]),
-    ("Сыворотка Hydra Boost", 4, 0, 2590, 0, "Увлажняющая сыворотка с гиалуроновой кислотой для ежедневного ухода.", ["Стандарт"], ["30 мл", "50 мл"]),
-    ("Крем для рук Soft Care", 4, 1, 690, 0, "Лёгкий крем с пантенолом, быстро впитывается.", ["Классический", "Алоэ"], None),
-    ("Набор ухода Face Duo", 4, 2, 3990, 18, "Очищающий гель и увлажняющий крем в одном наборе.", ["Базовый", "Sensitive"], None),
-    ("Спрей для волос Volume", 4, 3, 1290, 5, "Лёгкая фиксация и объём у корней без липкости.", ["Стандарт"], ["150 мл", "250 мл"]),
-    ("Рюкзак City Daypack", 5, 0, 4290, 0, "Городской рюкзак 20 л с отделением для ноутбука 15\".", ["Чёрный", "Хаки"], None),
-    ("Сумка через плечо Mini", 5, 1, 2790, 10, "Компактная сумка для документов и повседневных вещей.", ["Коричневый", "Чёрный"], None),
-    ("Кошелёк Slim Card", 5, 2, 1590, 0, "Тонкий кошелёк из экокожи на 8 карт.", ["Чёрный", "Коричневый"], None),
-    ("Очки Daylight UV400", 5, 3, 2190, 12, "Солнцезащитные очки с защитой UV400 и лёгкой оправой.", ["Чёрный", "Коричневый"], None),
+    ("Беспроводные наушники Pulse X", 0, 0, 4990, 15, "Лёгкие наушники с активным шумоподавлением и автономностью до 30 часов.", ["Чёрный", "Белый"], None, "p_headphones.jpg"),
+    ("Смарт-часы Nova Watch", 0, 1, 8990, 10, "Умные часы с пульсометром, GPS и защитой от влаги IP68.", ["Графит", "Серебро"], ["40 мм", "44 мм"], "p_watch.jpg"),
+    ("Портативная колонка Boom Mini", 0, 2, 3490, 0, "Компактная Bluetooth-колонка с насыщенным басом и защитой от брызг.", ["Чёрный", "Синий"], None, "p_speaker.jpg"),
+    ("Powerbank 20000 mAh", 0, 3, 2790, 20, "Быстрая зарядка двух устройств одновременно. Компактный корпус.", ["Чёрный", "Белый"], None, "p_powerbank.jpg"),
+    ("Настольная лампа Glow", 1, 0, 2190, 0, "Тёплый свет, регулировка яркости, USB-зарядка телефона на основании.", ["Белый", "Чёрный"], None, "p_lamp.jpg"),
+    ("Органайзер для кухни", 1, 1, 1590, 5, "Металлический органайзер для столовых приборов и мелочей.", ["Хром", "Чёрный"], None, "p_organizer.jpg"),
+    ("Набор посуды Everyday 6 пр.", 1, 2, 4590, 12, "Керамическое покрытие, подходит для индукции и посудомойки.", ["Серый", "Кремовый"], None, "p_cookware.jpg"),
+    ("Плед Soft Home 150×200", 1, 3, 3290, 0, "Мягкий плед из микрофибры — для дивана и путешествий.", ["Бежевый", "Серый", "Зелёный"], None, "p_blanket.jpg"),
+    ("Коврик для йоги ProMat", 2, 0, 2490, 0, "Нескользящий коврик толщиной 6 мм с чехлом в комплекте.", ["Синий", "Серый", "Розовый"], None, "p_yoga.jpg"),
+    ("Гантели 2×5 кг", 2, 1, 3890, 8, "Пара гантелей с неопреновым покрытием для комфортных тренировок дома.", ["Чёрный", "Красный"], None, "p_dumbbells.jpg"),
+    ("Спортивная бутылка 750 мл", 2, 2, 990, 0, "Герметичная бутылка из Tritan, не впитывает запахи.", ["Бирюзовый", "Чёрный", "Розовый"], None, "p_bottle.jpg"),
+    ("Фитнес-резинки Set 5", 2, 3, 1490, 25, "Набор из пяти лент разной нагрузки + мешочек для хранения.", ["Микс"], None, "p_bands.jpg"),
+    ("Футболка Daily Cotton", 3, 0, 1890, 0, "Базовая футболка из плотного хлопка, свободный крой.", ["Белый", "Чёрный", "Олива"], ["S", "M", "L", "XL"], "p_tshirt.jpg"),
+    ("Худи Urban Soft", 3, 1, 4490, 15, "Утеплённое худи с капюшоном и карманом-кенгуру.", ["Серый", "Чёрный"], ["M", "L", "XL", "XXL"], "p_hoodie.jpg"),
+    ("Кроссовки Runner Lite", 3, 2, 6990, 10, "Лёгкие кроссовки для города и лёгкого бега.", ["Белый", "Чёрный"], ["40", "41", "42", "43", "44"], "p_sneakers.jpg"),
+    ("Джинсы Straight Fit", 3, 3, 5490, 0, "Классические джинсы средней посадки, плотный деним.", ["Синий", "Чёрный"], ["30", "32", "34", "36"], "p_jeans.jpg"),
+    ("Сыворотка Hydra Boost", 4, 0, 2590, 0, "Увлажняющая сыворотка с гиалуроновой кислотой для ежедневного ухода.", ["Стандарт"], ["30 мл", "50 мл"], "p_serum.jpg"),
+    ("Крем для рук Soft Care", 4, 1, 690, 0, "Лёгкий крем с пантенолом, быстро впитывается.", ["Классический", "Алоэ"], None, "p_cream.jpg"),
+    ("Набор ухода Face Duo", 4, 2, 3990, 18, "Очищающий гель и увлажняющий крем в одном наборе.", ["Базовый", "Sensitive"], None, "p_faceset.jpg"),
+    ("Спрей для волос Volume", 4, 3, 1290, 5, "Лёгкая фиксация и объём у корней без липкости.", ["Стандарт"], ["150 мл", "250 мл"], "p_hairspray.jpg"),
+    ("Рюкзак City Daypack", 5, 0, 4290, 0, "Городской рюкзак 20 л с отделением для ноутбука 15\".", ["Чёрный", "Хаки"], None, "p_backpack.jpg"),
+    ("Сумка через плечо Mini", 5, 1, 2790, 10, "Компактная сумка для документов и повседневных вещей.", ["Коричневый", "Чёрный"], None, "p_bag.jpg"),
+    ("Кошелёк Slim Card", 5, 2, 1590, 0, "Тонкий кошелёк из экокожи на 8 карт.", ["Чёрный", "Коричневый"], None, "p_wallet.jpg"),
+    ("Очки Daylight UV400", 5, 3, 2190, 12, "Солнцезащитные очки с защитой UV400 и лёгкой оправой.", ["Чёрный", "Коричневый"], None, "p_glasses.jpg"),
 ]
 
-PALETTE = [
-    ((15, 118, 110), (15, 20, 25)),
-    ((30, 64, 175), (15, 23, 42)),
-    ((180, 83, 9), (41, 37, 36)),
-    ((126, 34, 206), (24, 24, 27)),
-    ((185, 28, 28), (28, 25, 23)),
-    ((4, 120, 87), (6, 78, 59)),
-    ((67, 56, 202), (30, 27, 75)),
-    ((14, 116, 144), (8, 47, 73)),
-]
+COLOR_TINTS = {
+    "Чёрный": (0.92, 0.88, 0.85),
+    "Белый": (1.08, 1.06, 1.1),
+    "Синий": (0.9, 0.95, 1.15),
+    "Серый": (0.98, 0.98, 0.98),
+    "Красный": (1.15, 0.9, 0.9),
+    "Розовый": (1.12, 0.95, 1.05),
+    "Бирюзовый": (0.9, 1.05, 1.12),
+    "Зелёный": (0.92, 1.1, 0.95),
+    "Бежевый": (1.08, 1.04, 0.95),
+    "Кремовый": (1.1, 1.06, 0.98),
+    "Олива": (0.95, 1.05, 0.9),
+    "Хаки": (1.0, 1.04, 0.9),
+    "Коричневый": (1.08, 0.98, 0.88),
+    "Графит": (0.94, 0.94, 0.96),
+    "Серебро": (1.05, 1.05, 1.08),
+    "Хром": (1.06, 1.06, 1.08),
+    "Микс": (1.0, 1.0, 1.0),
+    "Стандарт": (1.0, 1.0, 1.0),
+    "Классический": (1.0, 1.0, 1.0),
+    "Алоэ": (0.95, 1.08, 0.98),
+    "Базовый": (1.0, 1.0, 1.0),
+    "Sensitive": (1.05, 1.02, 1.06),
+}
 
 
-def _hash_color(text):
-    digest = hashlib.md5(text.encode("utf-8")).hexdigest()
-    return PALETTE[int(digest[:2], 16) % len(PALETTE)]
+def demo_root():
+    return Path(settings.BASE_DIR) / "static" / "demo_photos"
 
 
-def _font(size):
-    candidates = [
-        "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",
-        "/System/Library/Fonts/Supplemental/Arial.ttf",
-        "/Library/Fonts/Arial.ttf",
-        "/System/Library/Fonts/Helvetica.ttc",
-    ]
-    for path in candidates:
-        if Path(path).exists():
-            try:
-                return ImageFont.truetype(path, size=size)
-            except OSError:
-                continue
-    return ImageFont.load_default()
-
-
-def _wrap(draw, text, font, max_width):
-    words = text.split()
-    lines, current = [], ""
-    for word in words:
-        trial = (current + " " + word).strip()
-        if draw.textlength(trial, font=font) <= max_width:
-            current = trial
-        else:
-            if current:
-                lines.append(current)
-            current = word
-    if current:
-        lines.append(current)
-    return lines[:4]
-
-
-def make_image(path, title, subtitle="", size=(900, 900), category=False):
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    w, h = size
-    top, bottom = _hash_color(title + subtitle)
-    base = Image.new("RGB", (w, h), bottom)
-    draw = ImageDraw.Draw(base)
-
-    for y in range(h):
-        t = y / max(h - 1, 1)
-        color = tuple(int(top[i] * (1 - t) + bottom[i] * t) for i in range(3))
-        draw.line([(0, y), (w, y)], fill=color)
-
-    img = base.convert("RGBA")
-    overlay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    od = ImageDraw.Draw(overlay)
-    accent = tuple(min(255, c + 45) for c in top)
-    od.ellipse([int(w * 0.42), int(-h * 0.15), int(w * 1.1), int(h * 0.5)], fill=(*accent, 75))
-    od.ellipse([int(-w * 0.2), int(h * 0.55), int(w * 0.45), int(h * 1.2)], fill=(255, 255, 255, 28))
-    od.rectangle([0, int(h * 0.58), w, h], fill=(15, 20, 25, 145 if not category else 120))
-    img = Image.alpha_composite(img, overlay).convert("RGB")
-    draw = ImageDraw.Draw(img)
-
-    title_font = _font(54 if category else 42)
-    sub_font = _font(28)
-    badge_font = _font(22)
-
-    lines = _wrap(draw, title, title_font, w - 100)
-    y = int(h * 0.66)
-    for line in lines:
-        draw.text((48, y), line, font=title_font, fill=(255, 255, 255))
-        y += int(getattr(title_font, "size", 42) * 1.2)
-
-    if subtitle:
-        draw.text((48, y + 8), subtitle, font=sub_font, fill=(220, 230, 230))
-
-    badge = "DEMO" if not category else "КАТАЛОГ"
-    bw = draw.textlength(badge, font=badge_font) + 28
-    draw.rounded_rectangle([48, 48, 48 + bw, 92], radius=18, fill=(255, 255, 255))
-    draw.text((62, 58), badge, font=badge_font, fill=bottom)
-
-    img.save(path, quality=90, optimize=True)
-    return path
+def fit_image(src: Path, dest: Path, size, tint=None):
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    img = Image.open(src).convert("RGB")
+    img = ImageOps.fit(img, size, method=Image.Resampling.LANCZOS)
+    if tint:
+        r, g, b = img.split()
+        r = r.point(lambda x: min(255, int(x * tint[0])))
+        g = g.point(lambda x: min(255, int(x * tint[1])))
+        b = b.point(lambda x: min(255, int(x * tint[2])))
+        img = Image.merge("RGB", (r, g, b))
+        img = ImageEnhance.Contrast(img).enhance(1.05)
+    img.save(dest, format="JPEG", quality=88, optimize=True)
 
 
 class Command(BaseCommand):
-    help = "Удаляет старый каталог/фото и генерирует тестовые карточки с новыми картинками"
+    help = "Пересоздаёт каталог с фото из static/demo_photos"
 
     @transaction.atomic
     def handle(self, *args, **options):
         media = Path(settings.MEDIA_ROOT)
         products_dir = media / "products_photo"
         categories_dir = media / "categories_photo"
+        photos = demo_root()
+        prod_src = photos / "products"
+        cat_src = photos / "categories"
+
+        if not prod_src.exists() or not cat_src.exists():
+            raise SystemExit(
+                f"Нет демо-фото в {photos}. Сначала положите jpg в products/ и categories/."
+            )
 
         self.stdout.write("Очистка БД…")
         Order.objects.all().delete()
@@ -170,62 +163,72 @@ class Command(BaseCommand):
         Wishlist.objects.all().delete()
         ProductImage.objects.all().delete()
         ProductCharacteristic.objects.all().delete()
+        ProductPopularity.objects.all().delete()
+        UserInterest.objects.all().delete()
         Product.objects.all().delete()
         Categories.objects.all().delete()
         Characteristic.objects.all().delete()
         ParameterValue.objects.all().delete()
 
-        self.stdout.write("Очистка старых картинок…")
+        self.stdout.write("Очистка media…")
         for folder in (products_dir, categories_dir):
             if folder.exists():
                 shutil.rmtree(folder)
             folder.mkdir(parents=True, exist_ok=True)
 
         weight = Characteristic.objects.create(name="Вес", measurement_unit="г")
-        size_char = Characteristic.objects.create(name="Размер упаковки", measurement_unit="см")
+        size_char = Characteristic.objects.create(
+            name="Размер упаковки", measurement_unit="см"
+        )
 
-        self.stdout.write("Генерация категорий…")
-        roots = []
-        leaves = []  # leaves[root_idx][sub_idx]
+        self.stdout.write("Категории…")
+        roots_by_name = {}
+        leaves = [[] for _ in CATEGORY_TREE]
         cat_img = 0
+
         for root_idx, (root_name, sub_names) in enumerate(CATEGORY_TREE):
             cat_img += 1
             rel = f"categories_photo/cat_{cat_img:02d}.jpg"
-            make_image(media / rel, root_name, subtitle="Раздел каталога", size=(1200, 900), category=True)
+            fit_image(
+                cat_src / ROOT_PHOTOS[root_name],
+                media / rel,
+                (1200, 900),
+            )
             root = Categories(name=root_name, parent=None)
             root.image.name = rel
             root.save()
-            roots.append(root)
+            roots_by_name[root_name] = root
 
-            row = []
             for sub_name in sub_names:
                 cat_img += 1
                 rel = f"categories_photo/cat_{cat_img:02d}.jpg"
-                make_image(
+                fit_image(
+                    prod_src / SUB_PHOTOS[sub_name],
                     media / rel,
-                    sub_name,
-                    subtitle=root_name,
-                    size=(1200, 900),
-                    category=True,
+                    (1200, 900),
                 )
                 child = Categories(name=sub_name, parent=root)
                 child.image.name = rel
                 child.save()
-                row.append(child)
-            leaves.append(row)
+                leaves[root_idx].append(child)
 
-        self.stdout.write("Генерация товаров и фото…")
+        self.stdout.write("Товары…")
         created = 0
         image_count = 0
         param_cache = {}
 
-        for p_idx, (name, root_idx, sub_idx, price, discount, description, variants, sizes) in enumerate(PRODUCTS, start=1):
+        for p_idx, row in enumerate(PRODUCTS, start=1):
+            name, root_idx, sub_idx, price, discount, description, variants, sizes, photo = row
             product = Product.objects.create(
                 name=name,
                 discount=discount,
                 price_not_discount=price,
                 description=description,
-                parameters="Объём" if sizes and any("мл" in s or "мм" in s for s in sizes) else ("Размер" if sizes else ""),
+                parameters=(
+                    "Объём"
+                    if sizes and any("мл" in s or "мм" in s for s in sizes)
+                    else ("Размер" if sizes else "")
+                ),
                 measurement_unit="",
             )
             leaves[root_idx][sub_idx].product.add(product)
@@ -233,7 +236,9 @@ class Command(BaseCommand):
             if sizes:
                 for size_label in sizes:
                     if size_label not in param_cache:
-                        param_cache[size_label] = ParameterValue.objects.create(value=size_label)
+                        param_cache[size_label] = ParameterValue.objects.create(
+                            value=size_label
+                        )
                     product.parameters_value.add(param_cache[size_label])
 
             ProductCharacteristic.objects.create(
@@ -248,14 +253,11 @@ class Command(BaseCommand):
             )
 
             colors = variants or ["Стандарт"]
+            src = prod_src / photo
             for v_idx, color in enumerate(colors, start=1):
                 rel = f"products_photo/p_{p_idx:02d}_{v_idx}.jpg"
-                make_image(
-                    media / rel,
-                    name,
-                    subtitle=color or f"{product.price} ₽",
-                    size=(900, 900),
-                )
+                tint = COLOR_TINTS.get(color) if v_idx > 1 else None
+                fit_image(src, media / rel, (900, 900), tint=tint)
                 img = ProductImage(product=product, color=color)
                 img.image.name = rel
                 img.save()
@@ -263,8 +265,10 @@ class Command(BaseCommand):
 
             created += 1
 
-        total_cats = len(roots) + sum(len(row) for row in leaves)
-        self.stdout.write(self.style.SUCCESS(
-            f"Готово: {len(roots)} разделов, {total_cats - len(roots)} подкатегорий, "
-            f"{created} товаров, {image_count} новых фото"
-        ))
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Готово: {len(roots_by_name)} разделов, "
+                f"{sum(len(x) for x in leaves)} подкатегорий, "
+                f"{created} товаров, {image_count} фото"
+            )
+        )
