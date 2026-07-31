@@ -18,7 +18,7 @@
 
         <div class="header-search search-shell" data-search-shell>
             <form class="header-search__form" method="get" action="{% url 'products:search' %}" data-search-form>
-                <input type="search" name="q" placeholder="Поиск товаров…" autocomplete="off" data-search-input>
+                <input type="search" name="q" placeholder="Поиск товаров…" autocomplete="off" data-search-input value="{% if request.resolver_match.url_name == 'search' %}{{ request.GET.q }}{% endif %}">
                 <button type="submit">Найти</button>
             </form>
             <div class="search-history search-history--dropdown" data-search-history hidden>

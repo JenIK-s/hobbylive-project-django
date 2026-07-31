@@ -226,10 +226,11 @@
             var input = $('input[name="q"]', form);
             if (input) addHistory(input.value);
         });
-        var save = form.getAttribute('data-search-save');
-        if (save) addHistory(save);
     });
 
+    $$('[data-search-save]').forEach(function (el) {
+        addHistory(el.getAttribute('data-search-save'));
+    });
     $$('[data-search-history-clear]').forEach(function (btn) {
         btn.addEventListener('click', function (e) {
             e.preventDefault();

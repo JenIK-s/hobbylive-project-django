@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Поиск{% if query %}: {{ query }}{% endif %}{% endblock %}
 {% block content %}
+{% if query %}<div hidden data-search-save="{{ query }}"></div>{% endif %}
 <div class="mast">
     <div class="wrap">
         <div class="crumbs"><a href="{% url 'products:index' %}">Главная</a><span>/</span><span>Поиск</span></div>
@@ -8,26 +9,12 @@
         {% if query %}
             <p>Результаты по запросу «{{ query }}»</p>
         {% else %}
-            <p>Найдите товар по названию или описанию</p>
+            <p>Используйте поиск в шапке или иконку поиска</p>
         {% endif %}
     </div>
 </div>
 <section class="section">
     <div class="wrap">
-        <div class="search-shell" data-search-shell style="max-width:36rem;margin-bottom:1.75rem;">
-            <form class="search-row" method="get" action="{% url 'products:search' %}" data-search-form {% if query %}data-search-save="{{ query }}"{% endif %}>
-                <input type="search" name="q" value="{{ query }}" placeholder="Название товара…" autofocus autocomplete="off" data-search-input>
-                <button class="btn" type="submit">Найти</button>
-            </form>
-            <div class="search-history search-history--dropdown" data-search-history hidden>
-                <div class="search-history__head">
-                    <span>Недавние запросы</span>
-                    <button type="button" data-search-history-clear>Очистить</button>
-                </div>
-                <ul class="search-history__list" data-search-history-list></ul>
-            </div>
-        </div>
-
         {% if query %}
             {% if products %}
                 <div class="grid">
@@ -43,8 +30,8 @@
             {% endif %}
         {% else %}
             <div class="empty empty--soft">
-                <h3>Введите запрос</h3>
-                <p>История последних поисков появится под полем</p>
+                <h3>Введите запрос в поиске выше</h3>
+                <p>История появится под полем в шапке</p>
             </div>
         {% endif %}
     </div>
