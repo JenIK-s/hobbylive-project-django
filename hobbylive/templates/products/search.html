@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Поиск{% if query %}: {{ query }}{% endif %} — Hobby Live{% endblock %}
+{% block title %}Поиск{% if query %}: {{ query }}{% endif %}{% endblock %}
 {% block content %}
 <div class="mast">
     <div class="wrap">
@@ -14,10 +14,20 @@
 </div>
 <section class="section">
     <div class="wrap">
-        <form class="search-row" method="get" action="{% url 'products:search' %}" style="max-width:36rem;margin-bottom:1.75rem;">
-            <input type="search" name="q" value="{{ query }}" placeholder="Название товара…" autofocus>
-            <button class="btn" type="submit">Найти</button>
-        </form>
+        <div class="search-shell" data-search-shell style="max-width:36rem;margin-bottom:1.75rem;">
+            <form class="search-row" method="get" action="{% url 'products:search' %}" data-search-form {% if query %}data-search-save="{{ query }}"{% endif %}>
+                <input type="search" name="q" value="{{ query }}" placeholder="Название товара…" autofocus autocomplete="off" data-search-input>
+                <button class="btn" type="submit">Найти</button>
+            </form>
+            <div class="search-history search-history--dropdown" data-search-history hidden>
+                <div class="search-history__head">
+                    <span>Недавние запросы</span>
+                    <button type="button" data-search-history-clear>Очистить</button>
+                </div>
+                <ul class="search-history__list" data-search-history-list></ul>
+            </div>
+        </div>
+
         {% if query %}
             {% if products %}
                 <div class="grid">
@@ -32,9 +42,9 @@
                 </div>
             {% endif %}
         {% else %}
-            <div class="empty">
+            <div class="empty empty--soft">
                 <h3>Введите запрос</h3>
-                <p>Начните с названия товара</p>
+                <p>История последних поисков появится под полем</p>
             </div>
         {% endif %}
     </div>

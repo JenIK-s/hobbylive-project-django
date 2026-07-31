@@ -13,14 +13,21 @@
     <div class="site-header__inner">
         <a href="{% url 'products:index' %}" class="brand">
             <img src="{% static 'img/logo.png' %}" alt="">
-            <span>Hobby Live</span>
+            <span>Каталог</span>
         </a>
 
-        <div class="header-search">
-            <form class="header-search__form" method="get" action="{% url 'products:search' %}">
-                <input type="search" name="q" placeholder="Поиск товаров…">
+        <div class="header-search search-shell" data-search-shell>
+            <form class="header-search__form" method="get" action="{% url 'products:search' %}" data-search-form>
+                <input type="search" name="q" placeholder="Поиск товаров…" autocomplete="off" data-search-input>
                 <button type="submit">Найти</button>
             </form>
+            <div class="search-history search-history--dropdown" data-search-history hidden>
+                <div class="search-history__head">
+                    <span>Недавние запросы</span>
+                    <button type="button" data-search-history-clear>Очистить</button>
+                </div>
+                <ul class="search-history__list" data-search-history-list></ul>
+            </div>
         </div>
 
         <div class="actions">
@@ -134,9 +141,18 @@
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
             </button>
         </div>
-        <form class="search-row" method="get" action="{% url 'products:search' %}">
-            <input type="search" name="q" placeholder="Название товара…">
-            <button class="btn" type="submit">Найти</button>
-        </form>
+        <div class="search-shell" data-search-shell>
+            <form class="search-row" method="get" action="{% url 'products:search' %}" data-search-form>
+                <input type="search" name="q" placeholder="Название товара…" autocomplete="off" data-search-input>
+                <button class="btn" type="submit">Найти</button>
+            </form>
+            <div class="search-history search-history--dropdown" data-search-history hidden>
+                <div class="search-history__head">
+                    <span>Недавние запросы</span>
+                    <button type="button" data-search-history-clear>Очистить</button>
+                </div>
+                <ul class="search-history__list" data-search-history-list></ul>
+            </div>
+        </div>
     </div>
 </div>

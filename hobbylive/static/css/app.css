@@ -1,4 +1,4 @@
-/* Hobby Live — full e-commerce front (no frameworks) */
+/* Storefront — full e-commerce front (no frameworks) */
 
 :root {
     --ink: #0f1419;
@@ -202,6 +202,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 
 .header-search {
     display: none;
+    position: relative;
     max-width: 36rem;
     width: 100%;
     margin-inline: auto;
@@ -348,6 +349,106 @@ ul { margin: 0; padding: 0; list-style: none; }
     border-color: var(--accent);
     background: var(--surface);
     box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+}
+
+/* Search history — only under search field */
+.search-shell {
+    position: relative;
+}
+.search-history--dropdown {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 0.4rem);
+    z-index: 40;
+    padding: 0.7rem 0.75rem 0.75rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+}
+.search-history__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.4rem;
+    padding: 0 0.25rem;
+    font-size: 0.72rem;
+    font-family: var(--font-m);
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.search-history__head button {
+    border: 0;
+    background: transparent;
+    color: var(--accent);
+    font: inherit;
+    text-transform: none;
+    letter-spacing: 0;
+    cursor: pointer;
+    padding: 0;
+}
+.search-history__head button:hover { color: var(--accent-hover); }
+.search-history__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+.search-history__list li {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 0.15rem;
+}
+.search-history__list a {
+    min-width: 0;
+    padding: 0.55rem 0.65rem;
+    border-radius: var(--radius-sm);
+    color: var(--ink);
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.search-history__list a:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+}
+.search-history__remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 2rem;
+    height: 2rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    line-height: 0;
+}
+.search-history__remove svg {
+    width: 0.95rem;
+    height: 0.95rem;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+}
+.search-history__remove:hover {
+    background: var(--bg);
+    color: var(--ink);
+}
+.empty--soft {
+    border-style: solid;
+    background: transparent;
+    box-shadow: none;
 }
 
 /* Forms */
