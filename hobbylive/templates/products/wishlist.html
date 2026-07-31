@@ -1,83 +1,50 @@
 {% extends 'base.html' %}
-{% load static %}
-{% block title %}
-    Избранное
-{% endblock %}
+{% block title %}Избранное — Hobby Live{% endblock %}
 {% block content %}
-    <!doctype html>
-    <html class="no-js" lang="en">
-    <div class="breadcrumb-area section-padding-1 bg-gray breadcrumb-ptb-1">
-        <div class="container-fluid">
-            <div class="breadcrumb-content text-center">
-                <div class="breadcrumb-title">
-                    <h2>Избранное</h2>
-                </div>
-            </div>
-        </div>
+<div class="mast">
+    <div class="wrap">
+        <div class="crumbs"><a href="{% url 'products:index' %}">Главная</a><span>/</span><span>Избранное</span></div>
+        <h1>Избранное</h1>
+        <p>Сохранённые товары для быстрой покупки</p>
     </div>
-    <div class="wishlist-main-area pt-100 pb-100">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12 col-md-12 col-sm-12 col-12">
-
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <div class="table-content table-responsive wishlist-table-content">
-                                    {% if wishlist %}
-                                        <table>
-                                            <thead>
-                                            <tr>
-                                                <th></th>
-                                                <th></th>
-                                                <th>Товар</th>
-                                                <th> Цена</th>
-                                                <th class="wishlist-cart-none"><span>Add to cart</span></th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            {% for elem in wishlist %}
-                                                <tr>
-                                                    <td class="wishlist-remove">
-                                                        <form method="POST">
-                                                            {% csrf_token %}
-                                                            <button style="border-style: none; background: none"
-                                                                    type="submit" name="pk_w"
-                                                                    value="{{ elem.pk }}"><a><i
-                                                                    class="dlicon ui-1_simple-remove"></i></a>
-                                                            </button>
-                                                        </form>
-                                                    </td>
-                                                    <td class="wishlist-img">
-                                                        <a href="#"><img src="{{ elem.image.image.url }}"
-                                                                         style="width: 60px;" alt=""></a>
-                                                    </td>
-                                                    <td class="wishlist-name">
-                                                        <a href="#">{{ elem.product.name }}</a>
-                                                    </td>
-                                                    <td class="wishlist-price"><span
-                                                            class="amount">₽{{ elem.product.price }}</span></td>
-                                                    <td class="wishlist-cart">
-                                                        <form class="product-details-action-wrap d-flex justify-content-center"
-                                                              method="POST">
-                                                            {% csrf_token %}
-                                                            <button class="in_order_list " type="submit" name="action"
-                                                                    value="{{ elem.pk }}">В корзину
-                                                            </button>
-                                                        </form>
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    {% else %}
-                                        Вы ничего не добавили в избранное
-                                    {% endif %}
-                                </div>
-                            </div>
+</div>
+<section class="section">
+    <div class="wrap">
+        {% if wishlist %}
+            <div class="wish-list">
+                {% for item in wishlist %}
+                    <article class="wish-row">
+                        <a class="wish-row__media" href="{% url 'products:product_detail' item.product.pk item.image.pk %}">
+                            <img src="{{ item.image.image.url }}" alt="{{ item.product.name }}">
+                        </a>
+                        <div class="wish-row__body">
+                            <h3>
+                                <a href="{% url 'products:product_detail' item.product.pk item.image.pk %}">
+                                    {{ item.product.name }}{% if item.image.color %} · {{ item.image.color }}{% endif %}
+                                </a>
+                            </h3>
+                            <p class="wish-row__price">{{ item.product.price }} ₽</p>
                         </div>
-
-                </div>
+                        <div class="wish-row__actions">
+                            <form method="post" action="{% url 'products:wishlist' %}">
+                                {% csrf_token %}
+                                <button class="btn btn--sm" type="submit" name="action" value="{{ item.pk }}">В корзину</button>
+                            </form>
+                            <form method="post" action="{% url 'products:wishlist' %}">
+                                {% csrf_token %}
+                                <button class="btn btn--ghost btn--sm" type="submit" name="pk_w" value="{{ item.pk }}">Удалить</button>
+                            </form>
+                        </div>
+                    </article>
+                {% endfor %}
             </div>
-        </div>
+        {% else %}
+            <div class="empty">
+                <h3>Список пуст</h3>
+                <p>Добавляйте товары кнопкой «В избранное» на странице товара.</p>
+                <p style="margin-top:1rem;"><a class="btn" href="{% url 'products:categories' %}">В каталог</a></p>
+            </div>
+        {% endif %}
     </div>
+</section>
 {% endblock %}

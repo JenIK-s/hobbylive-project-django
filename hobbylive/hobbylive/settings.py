@@ -47,7 +47,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'products.context_processors.cart.cart_handler',
-                'products.context_processors.search.search_handler',
             ],
         },
     },
@@ -98,3 +97,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGOUT_REDIRECT_URL = 'products:index'
 LOGIN_REDIRECT_URL = 'products:profile'
+LOGIN_URL = 'users:signin'
+CSRF_TRUSTED_ORIGINS = ["https://6575-178-75-123-134.ngrok-free.app"]

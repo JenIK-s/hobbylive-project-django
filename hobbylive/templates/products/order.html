@@ -1,115 +1,42 @@
 {% extends 'base.html' %}
-{% load static %}
-{% block title %}
-    Оформление заказа
-{% endblock %}
+{% block title %}Оформление заказа — Hobby Live{% endblock %}
 {% block content %}
-    <div class="breadcrumb-area section-padding-1 bg-gray breadcrumb-ptb-1">
-        <div class="container-fluid">
-            <div class="breadcrumb-content text-center">
-                <div class="breadcrumb-title">
-
-                    {% if messages %}
-                        <ul class="messages">
-                            {% for message in messages %}
-                                <h2  {% if message.tags %} class=" {{ message.tags }} " {% endif %}> {{ message }} </h2>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <h2>Оформление заказа</h2>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+<div class="mast">
+    <div class="wrap wrap--m">
+        <div class="crumbs"><a href="{% url 'products:index' %}">Главная</a><span>/</span><span>Оформление</span></div>
+        <h1>Оформление заказа</h1>
+        <p>Выберите способ получения</p>
     </div>
-
-    <div class="my-account-area pt-100 pb-95">
-        <div class="container">
-            <div class="row flex-row-reverse">
-                <div class="col-lg-12">
-                    {% if not messages %}
-                        <div class="myaccount-tab-menu nav" role="tablist">
-                            <a href="#pickup" data-bs-toggle="tab">Самовывоз</a>
-                            <a href="#delivery" data-bs-toggle="tab">Доставка</a>
-                        </div>
-                    {% endif %}
-                    <div class="tab-content" id="myaccountContent">
-                        <div class="tab-pane fade" id="pickup" role="tabpanel">
-                            <div class="login-register-area pt-95 pb-100">
-                                <div class="container">
-                                    <div class="row justify-content-center">
-                                        <div class="col-lg-6 col-md-6">
-                                            <div class="login-register-wrap">
-                                                <div class="login-register-form">
-                                                    Забрать заказ можно по адресу: г. Москва, ул. Артюхиной д. 4 с 10:00
-                                                    до 17:00.
-
-                                                    Оформите заказ и на почту Вам придет уведомление о доставке товара в
-                                                    пункт самовывоза.
-                                                    <form method="post" action={% url "products:order" %}>
-                                                        {% csrf_token %}
-                                                    <div class="login-register-btn-remember">
-                                                            <div class="login-register-btn">
-                                                                <button type="submit" name="to_order_pickup" value="ok">Заказать</button>
-                                                            </div>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="tab-pane fade" id="delivery" role="tabpanel">
-                            <div class="login-register-area pt-95 pb-100">
-                                <div class="container">
-                                    <div class="row justify-content-center">
-                                        <div class="col-lg-6 col-md-6">
-                                            <div class="login-register-wrap">
-                                                <div class="login-register-form">
-                                                    <form method="post" action={% url "products:order" %}>
-                                                        {% csrf_token %}
-                                                        {% for elem in form %}
-                                                            <div class="sin-login-register">
-                                                                <label for="floatingInput">{{ elem.label }}
-                                                                    <span>*</span></label>
-                                                                {{ elem }}
-                                                            </div>
-                                                        {% endfor %}
-                                                        <div class="login-register-btn-remember">
-                                                            <div class="login-register-btn">
-                                                                <button type="submit" name="to_order" value="ok2">Заказать</button>
-                                                            </div>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+</div>
+<div class="wrap wrap--m sheet">
+    <div class="steps-bar">
+        <span class="is-current">1. Получение</span>
+        <span>2. Подтверждение</span>
+    </div>
+    <div class="choice-stack">
+        <section class="choice-card">
+            <h2>Самовывоз</h2>
+            <p>г. Москва, ул. Артюхиной д. 4 · ежедневно 10:00–17:00</p>
+            <p>После оформления сообщим, когда заказ будет готов к выдаче.</p>
+            <form method="post" action="{% url 'products:order' %}">
+                {% csrf_token %}
+                <button class="btn" type="submit" name="to_order_pickup" value="ok">Продолжить с самовывозом</button>
+            </form>
+        </section>
+        <section class="choice-card">
+            <h2>Доставка</h2>
+            <form method="post" action="{% url 'products:order' %}">
+                {% csrf_token %}
+                {% for elem in form %}
+                    <div class="field">
+                        <label>{{ elem.label }}</label>
+                        {{ elem }}
+                        {% if elem.errors %}<div class="field-error">{{ elem.errors }}</div>{% endif %}
                     </div>
-                </div>
-            </div>
-        </div>
+                {% endfor %}
+                <button class="btn" type="submit" name="to_order" value="ok2">Продолжить с доставкой</button>
+            </form>
+        </section>
     </div>
-    {#    <script>#}
-    {#    document.addEventListener('DOMContentLoaded', function() {#}
-    {#        const carrierSelect = document.getElementById('id_carrier');#}
-    {#        const outputDiv = document.getElementById('output');#}
-    {##}
-    {#        carrierSelect.addEventListener('change', function() {#}
-    {#            if (this.value === "СДЭК") {#}
-    {#                outputDiv.textContent = "123";#}
-    {#            } else if (this.value === "ПочтаРоссии") {#}
-    {#                outputDiv.textContent = "000";#}
-    {#            } else {#}
-    {#                outputDiv.textContent = ""; // Если ничего не выбрано#}
-    {#            }#}
-    {#        });#}
-    {#    });#}
-    {#</script>#}
-
+</div>
 {% endblock %}

@@ -2,19 +2,19 @@ from ..models import Cart
 
 
 def cart_handler(request):
-    if request.user.is_authenticated:
-        if request.method == "POST" and request.POST.get("pk"):
-            pk = request.POST.get("pk")
-            Cart.objects.filter(pk=pk).delete()
-
-        queryset = Cart.objects.filter(user=request.user)
-        total_price = 0
-        for elem in queryset:
-            total_price += elem.product.price * elem.count
-
+    if not request.user.is_authenticated:
         return {
-            "count": len(queryset),
-            "queryset": queryset,
-            "total_price": total_price
+            "count": 0,
+            "queryset": Cart.objects.none(),
+            "total_price": 0,
         }
-    return []
+
+    queryset = Cart.objects.filter(user=request.user).select_related(
+        "product", "image"
+    )
+    total_price = int(sum(elem.product.price * elem.count for elem in queryset))
+    return {
+        "count": queryset.count(),
+        "queryset": queryset,
+        "total_price": total_price,
+    }

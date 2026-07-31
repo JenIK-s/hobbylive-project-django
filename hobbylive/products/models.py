@@ -82,12 +82,10 @@ class Product(models.Model):
 
     @property
     def price(self):
-        return (self.price_not_discount
-                - (self.price_not_discount
-                   * (self.discount
-                      / 100
-                      )
-                   ))
+        return int(
+            self.price_not_discount
+            - (self.price_not_discount * (self.discount / 100))
+        )
 
     def __str__(self):
         return self.name
@@ -309,7 +307,7 @@ class Order(models.Model):
         choices=choises,
         verbose_name='Статус доставки'
     )
-    date = models.DateTimeField(auto_now=True)
+    date = models.DateTimeField(auto_now_add=True)
     total_price = models.IntegerField(
         verbose_name="Сумма к оплате"
     )

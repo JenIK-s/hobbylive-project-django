@@ -1,0 +1,9 @@
+<a href="{% url 'products:products_list' category.id %}" class="store-cat">
+    {% if category.image %}
+        <img src="{{ category.image.url }}" alt="{{ category.name }}">
+    {% else %}
+        <div class="store-card__placeholder">Категория</div>
+    {% endif %}
+    <div class="store-cat__shade"></div>
+    <h3 class="store-cat__title">{{ category.name }}</h3>
+</a>

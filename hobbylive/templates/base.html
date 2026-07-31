@@ -1,99 +1,39 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" class="no-js">
+<html lang="ru">
 <head>
-
     <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="robots" content="noindex, follow"/>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <!-- Favicon -->
-    <link rel="shortcut icon" type="image/x-icon" href="{% static "img/logo.png" %}">
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poiret+One&display=swap" rel="stylesheet">
-
-
-    <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Bellota:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap"
-          rel="stylesheet">
-    <link href="{% static "fonts/TIldaSans/TildaSans-Light/TildaSans-Light.css" %}" rel="stylesheet">
-    <link href="{% static "fonts/TIldaSans/TildaSans-Regular/TildaSans-Regular.css" %}" rel="stylesheet">
-    <link href="{% static "fonts/TIldaSans/TildaSans-Medium/TildaSans-Medium.css" %}" rel="stylesheet">
-    <link href="{% static "fonts/TIldaSans/TildaSans-Semibold/TildaSans-Semibold.css" %}" rel="stylesheet">
-    <link href="{% static "fonts/TIldaSans/TildaSans-Bold/TildaSans-Bold.css" %}" rel="stylesheet">
-    <link href="{% static "fonts/TIldaSans/TildaSans-ExtraBold/TildaSans-ExtraBold.css" %}" rel="stylesheet">
-    <link href="{% static "fonts/TIldaSans/TildaSans-Black/TildaSans-Black.css" %}" rel="stylesheet">
-
-    <!-- All CSS is here
-	============================================ -->
-
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href={% static "css/vendor/bootstrap.min.css" %}>
-    <!-- Icon Font CSS -->
-    <link rel="stylesheet" href={% static "css/vendor/font-awesome.css" %}>
-    <link rel="stylesheet" href={% static "css/vendor/dlicon.css" %}>
-    <!-- Others CSS -->
-    <link rel="stylesheet" href={% static "css/plugins/owl-carousel.css" %}>
-    <link rel="stylesheet" href={% static "css/plugins/slick.css" %}>
-    <link rel="stylesheet" href={% static "css/plugins/magnific-popup.css" %}>
-    <link rel="stylesheet" href={% static "css/plugins/jarallax.css" %}>
-    <link rel="stylesheet" href={% static "css/plugins/easyzoom.css" %}>
-    <link rel="stylesheet" href={% static "css/plugins/animate.css" %}>
-    <link rel="stylesheet" href={% static "css/plugins/fullpage.css" %}>
-    <link rel="stylesheet" href={% static "css/plugins/jquery-ui.css" %}>
-    <link rel="stylesheet" href={% static "css/plugins/select2.min.css" %}>
-    <link rel="stylesheet" href={% static "css/style.css" %}>
-    {% block static %}
-    {% endblock %}
-    <title>
-        {% block title %}
-        {% endblock %}
-    </title>
-    <!-- Modernizer JS -->
-
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Hobby Live — интернет-магазин. Доставка по России и самовывоз.">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/logo.png' %}">
+    <link href="{% static 'fonts/TIldaSans/TildaSans-Light/TildaSans-Light.css' %}" rel="stylesheet">
+    <link href="{% static 'fonts/TIldaSans/TildaSans-Regular/TildaSans-Regular.css' %}" rel="stylesheet">
+    <link href="{% static 'fonts/TIldaSans/TildaSans-Medium/TildaSans-Medium.css' %}" rel="stylesheet">
+    <link href="{% static 'fonts/TIldaSans/TildaSans-Bold/TildaSans-Bold.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+    {% block static %}{% endblock %}
+    <title>{% block title %}Hobby Live{% endblock %}</title>
 </head>
-
-<body class="body_top">
+<body>
 {% include "includes/header.html" %}
 
-{% block content %}
+{% if messages %}
+<div class="flash" aria-live="polite">
+    {% for message in messages %}
+        <div class="flash__item flash__item--{{ message.tags|default:'info' }}">
+            <span>{{ message }}</span>
+            <button type="button" class="flash__close" data-flash-close aria-label="Закрыть">×</button>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
 
-{% endblock %}
+<main class="page">
+{% block content %}{% endblock %}
+</main>
+
 {% include "includes/footer.html" %}
-<script src={% static "js/vendor/modernizr-3.11.7.min.js" %}></script>
-<!-- jquery -->
-<script src={% static "js/vendor/jquery-v3.6.0.min.js" %}></script>
-<!-- Popper JS -->
-<script src={% static "js/vendor/popper.js" %}></script>
-<!-- Bootstrap JS -->
-<script src={% static "js/vendor/bootstrap.min.js" %}></script>
-<script src={% static "js/plugins/owl-carousel.js" %}></script>
-<script src={% static "js/plugins/slick.js" %}></script>
-<script src={% static "js/plugins/jarallax.min.js" %}></script>
-<script src={% static "js/plugins/countdown.js" %}></script>
-<script src={% static "js/plugins/magnific-popup.js" %}></script>
-<script src={% static "js/plugins/instafeed.js" %}></script>
-<script src={% static "js/plugins/tilt.js" %}></script>
-<script src={% static "js/plugins/images-loaded.js" %}></script>
-<script src={% static "js/plugins/isotope.js" %}></script>
-<script src={% static "js/plugins/scrolloverflow-fullpage.js" %}></script>
-<script src={% static "js/plugins/fullpage.js" %}></script>
-<script src={% static "js/plugins/jquery-ui.js" %}></script>
-<script src={% static "js/plugins/jquery-ui-touch-punch.js" %}></script>
-<script src={% static "js/plugins/easyzoom.js" %}></script>
-<script src={% static "js/plugins/resizesensor.js" %}></script>
-<script src={% static "js/plugins/sticky-sidebar.js" %}></script>
-<script src={% static "js/plugins/scrollup.js" %}></script>
-<script src={% static "js/plugins/select2.min.js" %}></script>
-<script src={% static "js/plugins/cookie.js" %}></script>
-<script src={% static "js/plugins/bpopup.js" %}></script>
-<script src={% static "js/plugins/wow.js" %}></script>
-<script src={% static "js/plugins/ajax-mail.js" %}></script>
-<!-- Main JS -->
-<script src={% static "js/main.js" %}></script>
+<script src="{% static 'js/app.js' %}"></script>
+{% block scripts %}{% endblock %}
 </body>
 </html>

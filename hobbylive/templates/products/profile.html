@@ -1,155 +1,81 @@
 {% extends 'base.html' %}
-{% load static %}
-{% block title %}
-    Профиль
-{% endblock %}
+{% block title %}Аккаунт — Hobby Live{% endblock %}
 {% block content %}
-
-
-    <body>
-
-    <div class="main-wrapper">
-
-        <div class="breadcrumb-area section-padding-1 bg-gray breadcrumb-ptb-1">
-            <div class="container-fluid">
-                <div class="breadcrumb-content text-center">
-                    <div class="breadcrumb-title">
-                        <h2 class="sansa_text">Мой аккаунт ({{ user.username }})</h2>
-                        {% if user.is_staff %}
-                            <ul>
-                                <li class="active">Администратор</li>
-                            </ul>
-                        {% endif %}
+<div class="mast">
+    <div class="wrap">
+        <div class="crumbs"><a href="{% url 'products:index' %}">Главная</a><span>/</span><span>Аккаунт</span></div>
+        <h1>Личный кабинет</h1>
+        <p>{{ user.first_name|default:user.username }}, управляйте заказами и данными</p>
+    </div>
+</div>
+<div class="wrap sheet">
+    <div class="profile-layout">
+        <nav class="profile-nav" data-profile-nav aria-label="Разделы аккаунта">
+            <button type="button" class="is-on" data-profile-tab="orders">Заказы</button>
+            <button type="button" data-profile-tab="settings">Настройки</button>
+            {% if user.is_staff %}
+                <button type="button" data-profile-tab="staff">Все заказы</button>
+            {% endif %}
+            <a href="{% url 'products:wishlist' %}">Избранное</a>
+            <a href="{% url 'users:signout' %}">Выйти</a>
+        </nav>
+        <div>
+            <div class="panel profile-panel is-on" data-profile-panel="orders">
+                <h2 class="panel__title">История заказов</h2>
+                {% if orders %}
+                    <div class="orders">
+                        {% for order in orders %}
+                            <a class="order-row" href="{% url 'products:order_detail' order.pk %}">
+                                <span class="order-row__id">№{{ order.pk }}</span>
+                                <span class="order-row__info">
+                                    {{ order.date|date:"d.m.Y H:i" }}
+                                    <span class="status">{{ order.status }}</span>
+                                </span>
+                                <strong>{{ order.total_price }} ₽</strong>
+                            </a>
+                        {% endfor %}
                     </div>
+                {% else %}
+                    <div class="empty" style="border:0;box-shadow:none;padding:1.25rem 0;">
+                        <h3>Заказов пока нет</h3>
+                        <p><a href="{% url 'products:categories' %}">Перейти в каталог</a></p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="panel profile-panel" data-profile-panel="settings">
+                <h2 class="panel__title">Профиль</h2>
+                <form method="post" action="{% url 'products:profile' %}">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="field">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}<div class="field-error">{{ field.errors }}</div>{% endif %}
+                        </div>
+                    {% endfor %}
+                    <button class="btn" type="submit">Сохранить</button>
+                </form>
+            </div>
+
+            {% if user.is_staff and orders_staff %}
+            <div class="panel profile-panel" data-profile-panel="staff">
+                <h2 class="panel__title">Все заказы (staff)</h2>
+                <div class="orders">
+                    {% for order in orders_staff %}
+                        <a class="order-row" href="{% url 'products:order_detail' order.pk %}">
+                            <span class="order-row__id">№{{ order.pk }}</span>
+                            <span class="order-row__info">
+                                {{ order.user }} · {{ order.date|date:"d.m.Y" }}
+                                <span class="status">{{ order.status }}</span>
+                            </span>
+                            <strong>{{ order.total_price }} ₽</strong>
+                        </a>
+                    {% endfor %}
                 </div>
             </div>
+            {% endif %}
         </div>
-        <div class="my-account-area pt-100 pb-95">
-            <div class="container">
-                <div class="row flex-row-reverse">
-                    <div class="col-lg-12">
-                        <div class="myaccount-tab-menu nav" role="tablist">
-                            <a href="#dashboad" class="active" data-bs-toggle="tab">
-                                Информация</a>
-                            <a href="#orders" data-bs-toggle="tab">Заказы</a>
-                            {% if user.is_staff %}
-                                <a href="#orders_staff" data-bs-toggle="tab">Заказы пользователей</a>
-                            {% endif %}
-                            <a href="#account-info" data-bs-toggle="tab">Детали аккаунта</a>
-                            <a href={% url "users:logout" %}>Выход</a>
-                        </div>
-                        <!-- My Account Tab Menu End -->
-                        <!-- My Account Tab Content Start -->
-                        <div class="tab-content" id="myaccountContent">
-                            <!-- Single Tab Content Start -->
-                            <div class="tab-pane fade show active" id="dashboad" role="tabpanel">
-                                <div class="myaccount-content">
-                                    <div class="welcome">
-                                        <p>Привет, <strong>{{ user.get_full_name }}</strong> (Если не <strong>{{ user.get_full_name }}
-                                            !</strong><a href="{% url "users:logout" %}" class="logout"> Выйти</a>)</p>
-                                    </div>
-
-                                    <p class="mb-0">В личном кабинете. Вы можете просматривать свои заказы, управлять данными аккаунта, а также редактировать свой пароль и данные учетной записи.</p>
-                                </div>
-                            </div>
-                            <!-- Single Tab Content End -->
-                            <!-- Single Tab Content Start -->
-                            <div class="tab-pane fade" id="orders" role="tabpanel">
-                                <div class="myaccount-content">
-                                    <div class="myaccount-table table-responsive text-center">
-                                        {% if orders %}
-                                            <table class="table table-bordered">
-                                                <thead class="thead-light">
-                                                <tr>
-                                                    <th>№</th>
-                                                    <th>Дата</th>
-                                                    <th>Статус</th>
-                                                    <th>Итого</th>
-                                                    <th></th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                {% for order in orders %}
-                                                    <tr>
-                                                        <td>{{ order.pk }}</td>
-                                                        <td>{{ order.date }}</td>
-                                                        <td>{{ order.status }}</td>
-                                                        <td>₽{{ order.total_price }}</td>
-                                                        <td>
-                                                            <a href="{% url "products:order_detail" order.pk %}">Перейти</a>
-                                                        </td>
-                                                    </tr>
-                                                {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        {% else %}
-                                            У Вас не было заказов
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Single Tab Content End -->
-                            <div class="tab-pane fade" id="orders_staff" role="tabpanel">
-                                <div class="myaccount-content">
-                                    <div class="myaccount-table table-responsive text-center">
-                                        {% if orders %}
-                                            <table class="table table-bordered">
-                                                <thead class="thead-light">
-                                                <tr>
-                                                    <th>№</th>
-                                                    <th>Пользователь</th>
-                                                    <th>Дата</th>
-                                                    <th>Статус</th>
-                                                    <th>Итого</th>
-                                                    <th></th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                {% for order in orders_staff %}
-                                                    <tr>
-                                                        <td>{{ order.pk }}</td>
-                                                        <td>{{ order.user.username }}</td>
-                                                        <td>{{ order.date }}</td>
-                                                        <td>{{ order.status }}</td>
-                                                        <td>₽{{ order.total_price }}</td>
-                                                        <td>
-                                                            <a href="{% url "products:order_detail" order.pk %}">Перейти</a>
-                                                        </td>
-                                                    </tr>
-                                                {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        {% else %}
-                                            У Вас не было заказов
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Single Tab Content Start -->
-                            <div class="tab-pane fade" id="account-info" role="tabpanel">
-                                <div class="myaccount-content">
-                                    <div class="account-details-form">
-                                        <form method="POST">
-                                            {% csrf_token %}
-                                            {% for elem in form %}
-                                                <div class="single-input-item">
-                                                    <label for="floatingInput">{{ elem.label }}</label>
-                                                    {{ elem }}
-                                                </div>
-                                            {% endfor %}
-
-                                            <div class="single-input-item">
-                                                <button class="check-btn sqr-btn ">Сохранить изменения</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div> <!-- Single Tab Content End -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
+    </div>
+</div>
 {% endblock %}

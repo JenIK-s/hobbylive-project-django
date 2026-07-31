@@ -1,28 +1,94 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}
-    Главная
-{% endblock %}
+{% block title %}Hobby Live — интернет-магазин{% endblock %}
 {% block content %}
-{#  <div class="top-foto">#}
-{#    <img class="image_index" src="{% static "img/index_test.jpg" %}" style="filter: brightness(30%); "  alt="logo">#}
-{#  </div>#}
-{#  <div class="box">#}
-{#  <div class="section-title-1 mb-70 text-center centered">#}
-{#      <a class="font-index" >Товары для творческих<br>и изобретательных</a>#}
-{#                </div>#}
-{#  </div>#}
 
-    <div class="top-foto">
-  <img class="image_index" src="{% static 'img/index_test.jpg' %}" style="filter: brightness(30%);" alt="logo">
+<section class="hero">
+    <div class="hero__media" aria-hidden="true">
+        <img src="{% static 'img/kii.webp' %}" alt="">
+    </div>
+    <div class="hero__veil" aria-hidden="true"></div>
+    <div class="hero__inner">
+        <p class="hero__brand">Hobby Live</p>
+        <h1>Товары для ежедневной жизни</h1>
+        <p>Каталог, быстрый заказ, доставка по России и самовывоз в Москве.</p>
+        <div class="hero__actions">
+            <a href="{% url 'products:categories' %}" class="btn btn--lg">Перейти в каталог</a>
+            <a href="https://t.me/hobbylivemsk" target="_blank" rel="noopener" class="btn btn--ghost btn--lg">Telegram</a>
+        </div>
+    </div>
+</section>
+
+<div class="wrap" style="margin-top:0;">
+    <div class="trust">
+        <div class="trust__item">
+            <h3>Быстрый заказ</h3>
+            <p>Добавьте товары в корзину и оформите покупку за пару минут.</p>
+        </div>
+        <div class="trust__item">
+            <h3>Доставка и самовывоз</h3>
+            <p>Отправляем по России или выдаём заказ в Москве.</p>
+        </div>
+        <div class="trust__item">
+            <h3>Поддержка</h3>
+            <p>Поможем с выбором по телефону, WhatsApp или Telegram.</p>
+        </div>
+    </div>
 </div>
-<div class="box">
-  <div class="section-title-1 mb-70 text-center centered">
-    <a class="font-index">Товары для творческих<br>и изобретательных</a>
-  </div>
-</div>
 
-<style>
+{% if categories_preview %}
+<section class="section">
+    <div class="wrap">
+        <div class="section__head">
+            <div class="section__head-text">
+                <span class="section__kicker">Каталог</span>
+                <h2>Категории</h2>
+                <p>Выберите раздел и найдите нужные товары</p>
+            </div>
+            <a href="{% url 'products:categories' %}" class="btn btn--ghost">Все категории</a>
+        </div>
+        <div class="grid grid--cats">
+            {% for category in categories_preview %}
+                {% include "includes/category_item.html" %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
 
-</style>
+{% if featured_products %}
+<section class="section section--soft">
+    <div class="wrap">
+        <div class="section__head">
+            <div class="section__head-text">
+                <span class="section__kicker">Подборка</span>
+                <h2>Популярные товары</h2>
+                <p>Актуальные позиции из каталога</p>
+            </div>
+            <a href="{% url 'products:categories' %}" class="btn">Смотреть каталог</a>
+        </div>
+        <div class="grid">
+            {% for product in featured_products %}
+                {% include "includes/product_item.html" %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section class="section">
+    <div class="wrap">
+        <div class="cta-band">
+            <div>
+                <h2>Нужна помощь с выбором?</h2>
+                <p>Напишите нам — подскажем по наличию, доставке и комплектации.</p>
+            </div>
+            <div class="cta-band__actions">
+                <a class="btn" href="tel:+79251631300">Позвонить</a>
+                <a class="btn btn--ghost" href="https://wa.me/79251631300" target="_blank" rel="noopener">WhatsApp</a>
+            </div>
+        </div>
+    </div>
+</section>
+
 {% endblock %}

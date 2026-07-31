@@ -8,8 +8,8 @@ class QuantityForm(forms.Form):
         min_value=1,
         widget=forms.NumberInput(
             attrs={
-                'style': 'text-align: center; width: 50px;',
                 'id': 'qtybutton',
+                'aria-label': 'Количество',
             }
         )
     )

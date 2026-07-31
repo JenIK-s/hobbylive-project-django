@@ -1,129 +1,88 @@
 {% extends 'base.html' %}
-{% load static %}
-{% block title %}
-    Информация о товаре
-{% endblock %}
+{% block title %}{{ product.name }} — Hobby Live{% endblock %}
 {% block content %}
-    <div class="product-group">
-        <div class="row">
-            <div class="col-12 col-lg-6">
-                <div class="product-details-tab">
-                    <div class="pro-dec-big-img-slider mt-3"
-                         style="display: flex; justify-content: center; align-items: center;">
-                        <div class="easyzoom-style">
-                            <div class="easyzoom easyzoom--overlay">
-                                <a href="{{ image_large }}">
-                                    <img style="border-radius: 3px; width: 100%; height: auto; max-width: 800px; object-fit: cover;"
-                                         src="{{ image_large }}" alt="">
-                                </a>
-                            </div>
-                            <a class="easyzoom-pop-up img-popup" href="{{ image_large }}">
-                                <i class="dlicon ui-1_zoom-in"></i>
-                            </a>
-                        </div>
-                    </div>
-                    <section class="section-products">
-                        <div class="container">
-                            <div class="row justify-content-center">
-                                <form class="row justify-content-center" method="POST">
-                                    {% csrf_token %}
-                                    {% for images in product.images.all %}
-                                        <div class="image-column col-2 col-sm-4 col-md-1 col-lg-1 mb-1">
-                                            <div class="card text-center mx-auto">
-                                                <button style="width: 50px; height: 50px; background-color: rgba(255, 255, 255, 0); border: none;"
-                                                        type="submit" name="image" value="{{ images.pk }}">
-                                                    <img class="choice" src="{{ images.image.url }}" width="50"
-                                                         height="50" alt="logo">
-                                                </button>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                </form>
-                            </div>
-                        </div>
-                    </section>
-                </div>
+<div class="wrap">
+    <div class="crumbs crumbs--page">
+        <a href="{% url 'products:index' %}">Главная</a><span>/</span>
+        <a href="{% url 'products:categories' %}">Каталог</a><span>/</span>
+        <span>{{ product.name }}</span>
+    </div>
+
+    <div class="pdp">
+        <div class="pdp__gallery">
+            <div class="pdp__main">
+                <img src="{{ image_large }}" alt="{{ product.name }}">
             </div>
-            <div class="col-12 col-lg-6 d-flex flex-column align-items-center justify-content-center">
-                <div class="product-details-col-72">
-                    <div class="product-details-content p-dec-content-edit text-center">
-                        <h2 class="uppercase">{{ product.name }}</h2>
-                        <h3>₽{{ product.price }}</h3>
-                    {% if image.color %}
-                        <h4>Цвет: {{ image.color }}</h4>
-                    {% endif %}
+            {% if product.images.all|length > 1 %}
+            <form class="thumbs" method="post">
+                {% csrf_token %}
+                {% for images in product.images.all %}
+                    <button type="submit" name="image" value="{{ images.pk }}" class="{% if images.pk == image.pk %}is-on{% endif %}" title="{{ images.color|default:product.name }}">
+                        <img src="{{ images.image.url }}" alt="">
+                    </button>
+                {% endfor %}
+            </form>
+            {% endif %}
+        </div>
 
-                        <div class="product-details-peragraph">
-                            <section class="section-products">
-                                <div class="container product-details-content">
-                                    <div class="row justify-content-center">
-                                        <pre class="desc_product">{{ product.description }}</pre>
+        <div class="pdp__panel">
+            <h1>{{ product.name }}</h1>
+            {% if image.color %}<p class="muted" style="margin-top:-0.35rem;">Вариант: {{ image.color }}</p>{% endif %}
 
-                                        <ul>
-                                            {% for characteristic in product.characteristic.all %}
-                                                <li style="list-style-type: none;">
-                                                    <a class="desc_product">{{ characteristic.characteristic.name }}: {{ characteristic.amount }} {{ characteristic.characteristic.measurement_unit }}</a>
-                                                </li>
-                                            {% endfor %}
-                                        </ul>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <form class="product-details-action-wrap d-flex justify-content-center align-items-center"
-                                  method="POST">
-                                {% csrf_token %}
-                                {% if product.parameters %}
-                                    <div class="form-group d-flex align-items-center">
-                                        <label for="param_value" class="mr-2">{{ product.parameters }}</label>
-                                        <select name="param_value" id="param_value" class="form-control">
-                                            {% for value in product.parameters_value.all %}
-                                                <option value="{{ value }}">{{ value }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    <label for="param_value" class="mr-2">&nbsp;{{ product.measurement_unit }}</label>
-                                    </div>
-                                {% else %}
-                                    <button type="button" id="decrement"
-                                            style="width: 30px; height: 30px; background-color: rgba(255, 255, 255, 0); border: none;">
-                                        -
-                                    </button>
-                                    {{ form.qtybutton }}
-                                    <button type="button" id="increment"
-                                            style="width: 30px; height: 30px; background-color: rgba(255, 255, 255, 0); border: none;">
-                                        +
-                                    </button>
-                                {% endif %}
-                                <button class="in_order_list ml-2" type="submit" name="action" value="ok">В корзину
-                                </button>
-                                <div class="product-details-wishlist ml-2">
-                                    <button type="submit" name="add_wishlist" value="ok"
-                                            style="background-color: rgba(255, 255, 255, 0); border: none;">
-                                        <a title="Add to wishlist"><i class="fa {{ heart }}"></i></a>
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+            <div class="price-box">
+                {% if product.discount > 0 %}
+                    <span class="price-box__old">{{ product.price_not_discount }} ₽</span>
+                    <span class="price-box__now">{{ product.price }} ₽</span>
+                    <span class="price-box__tag">−{{ product.discount }}%</span>
+                {% else %}
+                    <span class="price-box__now">{{ product.price }} ₽</span>
+                {% endif %}
             </div>
+
+            <div class="desc">{{ product.description }}</div>
+
+            {% if product.characteristic.all %}
+                <ul class="chars">
+                    {% for characteristic in product.characteristic.all %}
+                        <li>
+                            <span>{{ characteristic.characteristic.name }}</span>
+                            <span>{{ characteristic.amount }} {{ characteristic.characteristic.measurement_unit }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <form class="buy" method="post">
+                {% csrf_token %}
+                {% if product.parameters %}
+                    <div class="param">
+                        <label for="param_value">{{ product.parameters }}</label>
+                        <select name="param_value" id="param_value">
+                            {% for value in product.parameters_value.all %}
+                                <option value="{{ value }}">{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                        <span class="muted">{{ product.measurement_unit }}</span>
+                    </div>
+                {% else %}
+                    <div class="qty">
+                        <button type="button" id="decrement" aria-label="Меньше">−</button>
+                        {{ form.qtybutton }}
+                        <button type="button" id="increment" aria-label="Больше">+</button>
+                    </div>
+                {% endif %}
+                <button class="btn btn--lg" type="submit" name="action" value="ok">В корзину</button>
+                <button class="btn btn--ghost" type="submit" name="add_wishlist" value="ok">
+                    {% if heart == 'fa-heart' %}В избранном{% else %}В избранное{% endif %}
+                </button>
+            </form>
+
+            <ul class="pdp-assures">
+                <li>Доставка по России</li>
+                <li>Самовывоз в Москве</li>
+                <li>Поддержка в мессенджерах</li>
+            </ul>
         </div>
     </div>
-    <script>
-        const qtyInput = document.getElementById('qtybutton');
-        const decrementButton = document.getElementById('decrement');
-        const incrementButton = document.getElementById('increment');
-
-        decrementButton.addEventListener('click', () => {
-            let currentValue = parseInt(qtyInput.value);
-            if (currentValue > 1) {
-                qtyInput.value = currentValue - 1;
-            }
-        });
-
-        incrementButton.addEventListener('click', () => {
-            let currentValue = parseInt(qtyInput.value);
-            qtyInput.value = currentValue + 1;
-        });
-    </script>
+</div>
 {% endblock %}

@@ -1,40 +1,24 @@
 {% extends 'base.html' %}
-{% load static %}
-{% block title %}
-    Категории
-{% endblock %}
+{% block title %}Категории — Hobby Live{% endblock %}
 {% block content %}
-<style>
-    .image_prod {
-    height: 400px;
-    width: 100%;
-    object-fit: cover;
-}
-    </style>
-        <div class="shop-area pt-70 pb-100">
-            <div class="container">
-
-                <div class="tab-content jump-3 pt-30">
-                        <div class="row">
-                            {% for category in categories %}
-                            <div class="col-lg-4 col-md-6 col-sm-6">
-                                <div class="product-wrap mb-50">
-                                    <div class="product-img default-overlay mb-25">
-                                        <a href="{% url "products:products_list" category.id %}">
-                                            <img class="default-img image_prod" src="{{ category.image.url }}" alt="">
-                                        </a>
-                                    </div>
-                                    <div class="product-content-2 title-font-width-400 text-center">
-                                        <h2><a href="">{{ category.name }}</a></h2>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-
-                </div>
+<div class="mast">
+    <div class="wrap">
+        <div class="crumbs"><a href="{% url 'products:index' %}">Главная</a><span>/</span><span>Каталог</span></div>
+        <h1>Категории</h1>
+        <p>Выберите раздел и перейдите к товарам</p>
+    </div>
+</div>
+<section class="section">
+    <div class="wrap">
+        {% if categories %}
+            <div class="grid grid--cats">
+                {% for category in categories %}
+                    {% include "includes/category_item.html" %}
+                {% endfor %}
             </div>
-        </div>
+        {% else %}
+            <div class="empty"><h3>Категории скоро появятся</h3></div>
+        {% endif %}
+    </div>
+</section>
 {% endblock %}

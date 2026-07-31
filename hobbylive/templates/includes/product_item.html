@@ -1,0 +1,28 @@
+{% if product.images.first %}
+<a href="{% url 'products:product_detail' product.pk product.images.first.pk %}" class="card">
+    <div class="card__media">
+        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" loading="lazy">
+        {% if product.discount > 0 %}
+            <span class="card__sale">−{{ product.discount }}%</span>
+        {% endif %}
+    </div>
+    <div class="card__body">
+        <h3 class="card__title" title="{{ product.name }}">{{ product.name }}</h3>
+        <div class="card__price">
+            {% if product.discount > 0 %}
+                <span class="card__old">{{ product.price_not_discount }} ₽</span>
+            {% endif %}
+            <span>{{ product.price }} ₽</span>
+        </div>
+        <span class="card__cta">Смотреть</span>
+    </div>
+</a>
+{% else %}
+<div class="card">
+    <div class="card__media"><div class="card__ph">Нет фото</div></div>
+    <div class="card__body">
+        <h3 class="card__title" title="{{ product.name }}">{{ product.name }}</h3>
+        <div class="card__price"><span>{{ product.price }} ₽</span></div>
+    </div>
+</div>
+{% endif %}

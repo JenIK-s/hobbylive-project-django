@@ -1,29 +1,31 @@
 {% extends 'base.html' %}
-{% load static %}
-{% block title %}
-    Каталог
-{% endblock %}
+{% block title %}{{ category.name }} — Hobby Live{% endblock %}
 {% block content %}
-
-    </style>
-    <div class="container">
-        <div class="row">
-            <div class="container_product">
-            {% if products %}
-                {% for product in products %}
-                    <div class="col-12 col-sm-6 col-md-4 col-lg-3 cp"> <!-- Добавлен класс product-card -->
-                        <a href="{% url 'products:product_detail' product.pk product.images.all.0.pk %}">
-                            <img src="{{ product.images.all.0.image.url }}" alt="{{ product.name }}" class="card-shadow image_product">
-                        </a>
-                        <h4></h4>
-                        <div class="product-title card-text-font title_product">{{ product.name }}</div>
-                        <div class="product-price card-price-font price_product">₽{{ product.price }}</div>
-                    </div>
-                {% endfor %}
-                {% else %}
-                <h2>По Вашему запросу ничего не найдено...</h2>
-            {% endif %}
-            </div>
+<div class="mast">
+    <div class="wrap">
+        <div class="crumbs">
+            <a href="{% url 'products:index' %}">Главная</a><span>/</span>
+            <a href="{% url 'products:categories' %}">Каталог</a><span>/</span>
+            <span>{{ category.name }}</span>
         </div>
+        <h1>{{ category.name }}</h1>
+        <p>Товары в этой категории</p>
     </div>
+</div>
+<section class="section">
+    <div class="wrap">
+        {% if products %}
+            <div class="grid">
+                {% for product in products %}
+                    {% include "includes/product_item.html" %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty">
+                <h3>В этом разделе пока нет товаров</h3>
+                <p><a href="{% url 'products:categories' %}">Вернуться к категориям</a></p>
+            </div>
+        {% endif %}
+    </div>
+</section>
 {% endblock %}

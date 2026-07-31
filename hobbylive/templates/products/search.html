@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Поиск{% if query %}: {{ query }}{% endif %} — Hobby Live{% endblock %}
+{% block content %}
+<div class="mast">
+    <div class="wrap">
+        <div class="crumbs"><a href="{% url 'products:index' %}">Главная</a><span>/</span><span>Поиск</span></div>
+        <h1>Поиск</h1>
+        {% if query %}
+            <p>Результаты по запросу «{{ query }}»</p>
+        {% else %}
+            <p>Найдите товар по названию или описанию</p>
+        {% endif %}
+    </div>
+</div>
+<section class="section">
+    <div class="wrap">
+        <form class="search-row" method="get" action="{% url 'products:search' %}" style="max-width:36rem;margin-bottom:1.75rem;">
+            <input type="search" name="q" value="{{ query }}" placeholder="Название товара…" autofocus>
+            <button class="btn" type="submit">Найти</button>
+        </form>
+        {% if query %}
+            {% if products %}
+                <div class="grid">
+                    {% for product in products %}
+                        {% include "includes/product_item.html" %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty">
+                    <h3>Ничего не найдено</h3>
+                    <p><a href="{% url 'products:categories' %}">Перейти в каталог</a></p>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="empty">
+                <h3>Введите запрос</h3>
+                <p>Начните с названия товара</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

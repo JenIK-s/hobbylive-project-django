@@ -32153,12 +32153,11 @@ h3.cart-page-title {
     transform: scale(1.01);
     background-color: #000;
     opacity: 0.9;
-    border-radius: 2px;
+    border-radius: var(--hl-radius);
 }
 
 .choice {
-
-    border-radius: 3px;
+    border-radius: var(--hl-radius-sm);
 }
 
 .choice:hover {
@@ -32179,15 +32178,19 @@ h3.cart-page-title {
     display: inline-block;
     font-size: 14px;
     color: #fff;
-    padding: 22px 50px;
-    background-color: #262626;
+    padding: 14px 32px;
+    background-color: var(--hl-green);
     font-weight: bold;
     line-height: 1;
     border: none;
+    border-radius: 50px;
+    transition: all var(--hl-transition);
 }
 
 .in_order_list:hover {
-    background-color: #fc4f4f;
+    background-color: var(--hl-green-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(45, 90, 61, 0.35);
 }
 
 .card-price-font {
@@ -32205,7 +32208,7 @@ h3.cart-page-title {
 }
 
 .card_product {
-    border-radius: 5px;
+    border-radius: var(--hl-radius);
     padding: 10px;
     margin-bottom: 20px;
     box-sizing: border-box;
@@ -32218,6 +32221,7 @@ h3.cart-page-title {
     height: 286px;
     width: 100%;
     object-fit: cover;
+    border-radius: var(--hl-radius);
 }
 
 .title_product {
@@ -32256,7 +32260,7 @@ h3.cart-page-title {
 }
 
 .cp {
-    border-radius: 5px;
+    border-radius: var(--hl-radius);
     padding: 10px;
     margin-bottom: 20px;
     box-sizing: border-box;
@@ -32324,4 +32328,1090 @@ h3.cart-page-title {
 
 .section-products .image-column {
     flex: 0 0 auto; /* Предотвращает растяжение колонок */
+}
+
+.image_prod {
+    height: 400px;
+    width: 100%;
+    object-fit: cover;
+    border-radius: var(--hl-radius);
+}
+.product-img {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--hl-radius);
+}
+
+.product-img img {
+    width: 100%;
+    display: block;
+    transition: transform 0.3s ease; /* Плавный переход при трансформации */
+}
+
+.product-img:hover img {
+    transform: scale(1.1); /* Увеличение изображения на 10% при наведении */
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.product-content-2 {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    z-index: 2;
+    text-align: center;
+}
+
+/* ===== Hobby Live Custom Styles ===== */
+
+:root {
+    --hl-green: #2f5d45;
+    --hl-green-dark: #1e3d2f;
+    --hl-green-mid: #457a5a;
+    --hl-green-light: #6b9b7a;
+    --hl-green-soft: #e6f0ea;
+    --hl-green-mist: #f2f6f3;
+    --hl-sand: #e9e5dc;
+    --hl-sand-soft: #f5f3ee;
+    --hl-dark: #1a2a20;
+    --hl-text: #3d4f42;
+    --hl-text-muted: #6e8074;
+    --hl-white: #fbfcfa;
+    --hl-surface: #ffffff;
+    --hl-border: #d8e0da;
+    --hl-accent: #c45c3a;
+    --hl-gold: #b8965a;
+    --hl-gold-soft: #e6d4b0;
+    --hl-radius: 16px;
+    --hl-radius-sm: 10px;
+    --hl-shadow: 0 6px 24px rgba(30, 61, 47, 0.08);
+    --hl-shadow-lg: 0 16px 48px rgba(30, 61, 47, 0.12);
+    --hl-transition: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Header */
+.hl-logo {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    transition: transform var(--hl-transition);
+}
+
+.hl-logo:hover {
+    transform: scale(1.05);
+}
+
+.hl-header {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: background-color var(--hl-transition), box-shadow var(--hl-transition);
+}
+
+.hl-header--scrolled {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+}
+
+.hl-nav {
+    gap: 2rem;
+    align-items: center;
+}
+
+.hl-nav__link {
+    font-family: "TildaSansMedium", sans-serif;
+    font-size: 15px;
+    letter-spacing: 0.03em;
+    color: var(--hl-dark);
+    text-decoration: none;
+    position: relative;
+    padding: 4px 0;
+    transition: color var(--hl-transition);
+}
+
+.hl-nav__link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--hl-green);
+    transition: width var(--hl-transition);
+}
+
+.hl-nav__link:hover {
+    color: var(--hl-green);
+}
+
+.hl-nav__link:hover::after {
+    width: 100%;
+}
+
+/* Hero */
+.hl-hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-top: -60px;
+}
+
+.hl-hero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.hl-hero__bg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.05);
+    animation: hl-hero-zoom 20s ease-in-out infinite alternate;
+}
+
+@keyframes hl-hero-zoom {
+    from { transform: scale(1.05); }
+    to { transform: scale(1.12); }
+}
+
+.hl-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(26, 46, 31, 0.75) 0%,
+        rgba(45, 90, 61, 0.55) 50%,
+        rgba(26, 46, 31, 0.65) 100%
+    );
+}
+
+.hl-hero__content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 120px 24px 80px;
+    max-width: 800px;
+}
+
+.hl-hero__badge {
+    display: inline-block;
+    padding: 6px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50px;
+    color: rgba(255, 255, 255, 0.9);
+    font-family: "TildaSansMedium", sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+}
+
+.hl-hero__title {
+    font-family: "TildaSansLight", serif;
+    font-size: clamp(36px, 6vw, 64px);
+    color: #fff;
+    line-height: 1.15;
+    letter-spacing: 0.02em;
+    margin-bottom: 20px;
+}
+
+.hl-hero__subtitle {
+    font-family: "TildaSansRegular", sans-serif;
+    font-size: clamp(16px, 2vw, 20px);
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 36px;
+    line-height: 1.6;
+}
+
+.hl-hero__cta {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+}
+
+.hl-hero__stats {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.hl-hero__stat {
+    text-align: center;
+}
+
+.hl-hero__stat-num {
+    display: block;
+    font-family: "TildaSansBold", sans-serif;
+    font-size: 28px;
+    color: var(--hl-gold);
+}
+
+.hl-hero__stat-label {
+    font-family: "TildaSansLight", sans-serif;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.hl-hero__stat-divider {
+    width: 1px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.hl-hero__scroll {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    width: 28px;
+    height: 48px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: border-color var(--hl-transition);
+}
+
+.hl-hero__scroll:hover {
+    border-color: #fff;
+}
+
+.hl-hero__scroll span {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 8px;
+    background: #fff;
+    border-radius: 2px;
+    animation: hl-scroll-bounce 2s infinite;
+}
+
+@keyframes hl-scroll-bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+    50% { transform: translateX(-50%) translateY(12px); opacity: 0.3; }
+}
+
+/* Buttons */
+.hl-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 32px;
+    border-radius: 50px;
+    font-family: "TildaSansMedium", sans-serif;
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all var(--hl-transition);
+}
+
+.hl-btn--primary {
+    background: var(--hl-green);
+    color: #fff;
+    border-color: var(--hl-green);
+}
+
+.hl-btn--primary:hover {
+    background: var(--hl-green-dark);
+    border-color: var(--hl-green-dark);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(45, 90, 61, 0.35);
+}
+
+.hl-btn--outline {
+    background: transparent;
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.hl-btn--outline:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #fff;
+    color: #fff;
+}
+
+.hl-btn--outline-light {
+    background: transparent;
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.hl-btn--outline-light:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.hl-btn--dark {
+    background: var(--hl-dark);
+    color: #fff;
+    border-color: var(--hl-dark);
+}
+
+.hl-btn--dark:hover {
+    background: var(--hl-green);
+    border-color: var(--hl-green);
+    color: #fff;
+}
+
+/* Sections */
+.hl-section {
+    padding: 80px 0;
+}
+
+.hl-section--gray {
+    background: var(--hl-sand-soft);
+}
+
+.hl-section__header {
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+.hl-section__label {
+    display: inline-block;
+    font-family: "TildaSansMedium", sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--hl-green-light);
+    margin-bottom: 12px;
+}
+
+.hl-section__title {
+    font-family: "TildaSansLight", serif;
+    font-size: clamp(28px, 4vw, 42px);
+    color: var(--hl-dark);
+    margin-bottom: 12px;
+}
+
+.hl-section__desc {
+    font-family: "TildaSansRegular", sans-serif;
+    font-size: 16px;
+    color: var(--hl-text-muted);
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* Page hero (inner pages) */
+.hl-page-hero {
+    background: var(--hl-sand-soft);
+    padding: 48px 0 40px;
+    text-align: center;
+    margin-bottom: 0;
+}
+
+.hl-page-hero__title {
+    font-family: "TildaSansLight", serif;
+    font-size: clamp(28px, 4vw, 40px);
+    color: var(--hl-dark);
+    margin-bottom: 8px;
+}
+
+.hl-page-hero__subtitle {
+    font-family: "TildaSansRegular", sans-serif;
+    font-size: 16px;
+    color: var(--hl-text-muted);
+}
+
+/* Product card */
+.hl-products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 24px;
+    align-items: stretch;
+}
+
+.hl-product-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--hl-radius);
+    overflow: hidden;
+    background: #fff;
+    box-shadow: var(--hl-shadow);
+    transition: transform var(--hl-transition), box-shadow var(--hl-transition);
+}
+
+.hl-product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 48px rgba(26, 46, 31, 0.18);
+}
+
+.hl-product-card__link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100%;
+}
+
+.hl-product-card__img-wrap {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 1 / 1;
+}
+
+.hl-product-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.hl-product-card:hover .hl-product-card__img {
+    transform: scale(1.08);
+}
+
+.hl-product-card__badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: var(--hl-accent);
+    color: #fff;
+    font-family: "TildaSansBold", sans-serif;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 50px;
+    z-index: 2;
+}
+
+.hl-product-card__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(26, 46, 31, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity var(--hl-transition);
+}
+
+.hl-product-card:hover .hl-product-card__overlay {
+    opacity: 1;
+}
+
+.hl-product-card__view {
+    color: #fff;
+    font-family: "TildaSansMedium", sans-serif;
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    padding: 8px 20px;
+    border-radius: 50px;
+}
+
+.hl-product-card__body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 72px;
+}
+
+.hl-product-card__title {
+    font-family: "TildaSansMedium", sans-serif;
+    font-size: 15px;
+    color: var(--hl-dark);
+    margin-bottom: 8px;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: calc(15px * 1.4 * 2);
+    max-height: calc(15px * 1.4 * 2);
+}
+
+.hl-product-card__price {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: auto;
+}
+
+.hl-product-card__price-old {
+    font-family: "TildaSansLight", sans-serif;
+    font-size: 14px;
+    color: var(--hl-text-muted);
+    text-decoration: line-through;
+}
+
+.hl-product-card__price-current {
+    font-family: "TildaSansBold", sans-serif;
+    font-size: 18px;
+    color: var(--hl-green);
+}
+
+/* Category card */
+.hl-category-card {
+    display: block;
+    text-decoration: none;
+    border-radius: var(--hl-radius);
+    overflow: hidden;
+    position: relative;
+    box-shadow: var(--hl-shadow);
+    transition: transform var(--hl-transition), box-shadow var(--hl-transition);
+}
+
+.hl-category-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(26, 46, 31, 0.2);
+}
+
+.hl-category-card__img-wrap {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+}
+
+.hl-category-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.hl-category-card:hover .hl-category-card__img {
+    transform: scale(1.1);
+}
+
+.hl-category-card__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(26, 46, 31, 0.7) 0%, transparent 60%);
+}
+
+.hl-category-card__title {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    right: 40px;
+    font-family: "TildaSansMedium", sans-serif;
+    font-size: 18px;
+    color: #fff;
+    margin: 0;
+    z-index: 2;
+}
+
+.hl-category-card__arrow {
+    position: absolute;
+    bottom: 18px;
+    right: 16px;
+    color: #fff;
+    font-size: 20px;
+    z-index: 2;
+    transition: transform var(--hl-transition);
+}
+
+.hl-category-card:hover .hl-category-card__arrow {
+    transform: translateX(4px);
+}
+
+/* Features */
+.hl-feature {
+    text-align: center;
+    padding: 32px 24px;
+    border-radius: var(--hl-radius);
+    background: #fff;
+    box-shadow: var(--hl-shadow);
+    height: 100%;
+    transition: transform var(--hl-transition);
+}
+
+.hl-feature:hover {
+    transform: translateY(-4px);
+}
+
+.hl-feature__icon {
+    font-size: 40px;
+    margin-bottom: 16px;
+}
+
+.hl-feature__title {
+    font-family: "TildaSansMedium", sans-serif;
+    font-size: 18px;
+    color: var(--hl-dark);
+    margin-bottom: 12px;
+}
+
+.hl-feature__text {
+    font-family: "TildaSansRegular", sans-serif;
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* CTA Banner */
+.hl-cta-banner {
+    background: linear-gradient(135deg, var(--hl-green-dark) 0%, var(--hl-green) 100%);
+    padding: 60px 0;
+}
+
+.hl-cta-banner__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    flex-wrap: wrap;
+}
+
+.hl-cta-banner__text h2 {
+    font-family: "TildaSansLight", serif;
+    font-size: clamp(24px, 3vw, 32px);
+    color: #fff;
+    margin-bottom: 8px;
+}
+
+.hl-cta-banner__text p {
+    font-family: "TildaSansRegular", sans-serif;
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.75);
+    margin: 0;
+}
+
+.hl-cta-banner__actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* Search */
+.hl-search-form {
+    display: flex;
+    gap: 12px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.hl-search-form__input {
+    flex: 1;
+    padding: 14px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 50px;
+    font-family: "TildaSansRegular", sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color var(--hl-transition);
+}
+
+.hl-search-form__input:focus {
+    border-color: var(--hl-green);
+}
+
+/* Empty state */
+.hl-empty-state {
+    text-align: center;
+    padding: 60px 24px;
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
+.hl-empty-state__icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.hl-empty-state h3 {
+    font-family: "TildaSansMedium", sans-serif;
+    color: var(--hl-dark);
+    margin-bottom: 8px;
+}
+
+.hl-empty-state p {
+    font-family: "TildaSansRegular", sans-serif;
+    color: #888;
+}
+
+.hl-empty-state a {
+    color: var(--hl-green);
+}
+
+/* Toast notifications */
+.hl-toast-container {
+    position: fixed;
+    top: 80px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.hl-toast {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-radius: var(--hl-radius);
+    background: var(--hl-green);
+    color: #fff;
+    font-family: "TildaSansMedium", sans-serif;
+    font-size: 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    animation: hl-toast-in 0.4s ease;
+    max-width: 360px;
+}
+
+.hl-toast--success {
+    background: var(--hl-green);
+}
+
+.hl-toast--error {
+    background: var(--hl-accent);
+}
+
+.hl-toast--hide {
+    animation: hl-toast-out 0.4s ease forwards;
+}
+
+.hl-toast__close {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 20px;
+    cursor: pointer;
+    margin-left: auto;
+    padding: 0;
+    line-height: 1;
+}
+
+@keyframes hl-toast-in {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes hl-toast-out {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+
+.hl-cart-empty {
+    font-family: "TildaSansRegular", sans-serif;
+    color: #888;
+    padding: 16px 0;
+}
+
+/* Override old index styles when hero is present */
+.body_top:has(.hl-hero) {
+    padding-top: 0;
+}
+
+@media (max-width: 768px) {
+    .hl-hero__stats {
+        gap: 16px;
+    }
+
+    .hl-hero__stat-divider {
+        display: none;
+    }
+
+    .hl-cta-banner__inner {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .hl-cta-banner__actions {
+        justify-content: center;
+    }
+
+    .hl-toast-container {
+        left: 16px;
+        right: 16px;
+    }
+
+    .hl-toast {
+        max-width: 100%;
+    }
+}
+
+/* Categories grid */
+.hl-categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 24px;
+}
+
+/* Product detail page */
+.hl-product-detail__gallery {
+    position: sticky;
+    top: 80px;
+}
+
+.hl-product-detail__main-img {
+    position: relative;
+    border-radius: var(--hl-radius);
+    overflow: hidden;
+    box-shadow: var(--hl-shadow);
+    margin-bottom: 16px;
+}
+
+.hl-product-detail__main-img img {
+    width: 100%;
+    height: auto;
+    max-height: 520px;
+    object-fit: cover;
+    display: block;
+    border-radius: var(--hl-radius);
+}
+
+.hl-product-detail__zoom {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--hl-dark);
+    box-shadow: var(--hl-shadow);
+}
+
+.hl-product-detail__thumbs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.hl-product-detail__thumb {
+    width: 64px;
+    height: 64px;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: var(--hl-radius-sm);
+    overflow: hidden;
+    background: none;
+    cursor: pointer;
+    transition: border-color var(--hl-transition), transform var(--hl-transition);
+}
+
+.hl-product-detail__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: calc(var(--hl-radius-sm) - 2px);
+}
+
+.hl-product-detail__thumb:hover,
+.hl-product-detail__thumb--active {
+    border-color: var(--hl-green);
+    transform: scale(1.05);
+}
+
+.hl-product-detail__info {
+    padding: 16px 0 16px 24px;
+}
+
+.hl-product-detail__price {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+.hl-product-detail__price-old {
+    font-family: "TildaSansLight", sans-serif;
+    font-size: 20px;
+    color: var(--hl-text-muted);
+    text-decoration: line-through;
+}
+
+.hl-product-detail__price-current {
+    font-family: "TildaSansBold", sans-serif;
+    font-size: 32px;
+    color: var(--hl-green);
+}
+
+.hl-product-card__badge--inline {
+    position: static;
+    display: inline-block;
+}
+
+.hl-product-detail__desc {
+    margin-bottom: 32px;
+}
+
+.hl-product-detail__chars {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0 0;
+}
+
+.hl-product-detail__chars li {
+    font-family: "TildaSansRegular", sans-serif;
+    font-size: 15px;
+    color: #555;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.hl-product-detail__actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.hl-product-detail__param {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.hl-input {
+    padding: 10px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: var(--hl-radius-sm);
+    font-family: "TildaSansRegular", sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color var(--hl-transition);
+}
+
+.hl-input:focus {
+    border-color: var(--hl-green);
+}
+
+.hl-qty {
+    display: flex;
+    align-items: center;
+    border: 2px solid #e0e0e0;
+    border-radius: 50px;
+    overflow: hidden;
+}
+
+.hl-qty__btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: var(--hl-green-soft);
+    font-size: 18px;
+    cursor: pointer;
+    transition: background var(--hl-transition);
+}
+
+.hl-qty__btn:hover {
+    background: #e8e4dc;
+}
+
+.hl-qty input {
+    width: 50px;
+    text-align: center;
+    border: none;
+    font-family: "TildaSansMedium", sans-serif;
+    font-size: 16px;
+    background: transparent;
+}
+
+.hl-btn--cart {
+    flex: 1;
+    justify-content: center;
+    min-width: 160px;
+}
+
+.hl-btn--icon {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--hl-green-soft);
+    color: var(--hl-dark);
+    border: 2px solid #e0e0e0;
+}
+
+.hl-btn--icon:hover {
+    background: var(--hl-green);
+    border-color: var(--hl-green);
+    color: #fff;
+}
+
+/* Unified radius for legacy template blocks */
+.login-register-wrap,
+.grand-total-wrap,
+.myaccount-content,
+.cart-table-content,
+.wishlist-table-content,
+.table-content,
+.account-details-form .single-input-item input,
+.sin-login-register input,
+.product-wrap {
+    border-radius: var(--hl-radius);
+}
+
+.login-register-wrap,
+.grand-total-wrap,
+.myaccount-content,
+.cart-table-content,
+.wishlist-table-content,
+.table-content {
+    overflow: hidden;
+    box-shadow: var(--hl-shadow);
+}
+
+.login-register-btn button,
+.check-btn,
+.grand-btn button,
+.cart-btn-style,
+.cart-checkout-btn a {
+    border-radius: 50px !important;
+}
+
+.wishlist-table-content table img,
+.cart-table-content table img,
+.sidebar-cart-active .cart-img img {
+    border-radius: var(--hl-radius-sm) !important;
+}
+
+.myaccount-tab-menu a {
+    border-radius: var(--hl-radius-sm) var(--hl-radius-sm) 0 0;
+}
+
+.product-wrap .product-img,
+.product-wrap .product-img img,
+.default-img {
+    border-radius: var(--hl-radius) !important;
+}
+
+@media (max-width: 992px) {
+    .hl-product-detail__info {
+        padding: 32px 0 0;
+    }
+
+    .hl-product-detail__gallery {
+        position: static;
+    }
 }
